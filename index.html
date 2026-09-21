@@ -167,6 +167,12 @@
         <!-- Injected via JavaScript -->
       </div>
 
+      <!-- Question Image (if figure is required) -->
+      <div id="questionImageContainer" class="quiz-image-container" style="display:none;">
+        <img id="questionImage" src="" alt="問題の図" class="quiz-figure-img">
+        <div class="image-zoom-hint"><i data-lucide="zoom-in"></i> クリックで拡大表示</div>
+      </div>
+
       <!-- Answer Toggle Button -->
       <button id="answerToggleBtn" class="answer-toggle-btn">
         <i data-lucide="eye"></i> 解答を表示する <span style="font-size:0.75rem;opacity:0.7;">(Space)</span>
@@ -392,5 +398,14 @@
   <!-- Scripts -->
   <script src="questions.js"></script>
   <script src="app.js"></script>
+
+  <!-- Image Lightbox Modal -->
+  <div id="imageLightboxModal" class="modal-backdrop" style="z-index:60;">
+    <div class="lightbox-content">
+      <button id="closeLightboxBtn" class="lightbox-close"><i data-lucide="x"></i></button>
+      <img id="lightboxImg" src="" alt="拡大画像" class="lightbox-img">
+    </div>
+  </div>
+
 </body>
 </html>

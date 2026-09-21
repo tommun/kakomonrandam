@@ -550,6 +550,17 @@ function renderCurrentQuestion() {
   questionEl.innerHTML = autoAnnotateMath(q.question);
   renderEquationsInElement(questionEl);
 
+  // Render Image if available
+  const imgContainer = document.getElementById('questionImageContainer');
+  const imgEl = document.getElementById('questionImage');
+  if (q.imageUrl) {
+    imgContainer.style.display = 'flex';
+    imgEl.src = q.imageUrl;
+  } else {
+    imgContainer.style.display = 'none';
+    imgEl.src = '';
+  }
+
   const answerEl = document.getElementById('answerText');
   answerEl.innerHTML = autoAnnotateMath(q.answer);
   renderEquationsInElement(answerEl);
@@ -1006,6 +1017,29 @@ function setupEventListeners() {
   });
 
   exportDataBtn.addEventListener('click', exportAllDataJSON);
+
+  // Lightbox modal controls
+  const imgEl = document.getElementById('questionImage');
+  const lightboxModal = document.getElementById('imageLightboxModal');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const closeLightboxBtn = document.getElementById('closeLightboxBtn');
+
+  if (imgEl && lightboxModal) {
+    imgEl.addEventListener('click', () => {
+      lightboxImg.src = imgEl.src;
+      lightboxModal.classList.add('visible');
+    });
+
+    closeLightboxBtn.addEventListener('click', () => {
+      lightboxModal.classList.remove('visible');
+    });
+
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) {
+        lightboxModal.classList.remove('visible');
+      }
+    });
+  }
 
   // Close modals on backdrop click
   window.addEventListener('click', (e) => {
