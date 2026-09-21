@@ -29,6 +29,11 @@
         </div>
       </div>
       <div class="header-actions">
+        <!-- Admin Dashboard Button -->
+        <button id="adminModalBtn" class="btn-icon" title="管理画面（アカウント情報・全体の進捗）">
+          <i data-lucide="shield-alert"></i>
+        </button>
+
         <!-- User Account Badge / Button -->
         <button id="authModalBtn" class="btn-auth" title="アカウント管理">
           <i data-lucide="user"></i>
@@ -195,7 +200,7 @@
       </div>
     </article>
 
-    <!-- Empty State (e.g., Bookmark mode is empty) -->
+    <!-- Empty State -->
     <div id="emptyState" class="empty-state">
       <i data-lucide="inbox" class="empty-icon"></i>
       <h3>該当する問題がありません</h3>
@@ -217,6 +222,88 @@
 
   </main>
 
+  <!-- Admin Modal (Dashboard for Account Info) -->
+  <div id="adminModal" class="modal-backdrop">
+    <div class="modal-card admin-card">
+      <div class="modal-header">
+        <h3><i data-lucide="shield-alert"></i> 管理画面（アカウント情報・学習進捗）</h3>
+        <button id="adminModalClose" class="btn-close"><i data-lucide="x"></i></button>
+      </div>
+
+      <!-- Admin Lock Screen (Password: admin or leave empty for easy access) -->
+      <div id="adminLockScreen" class="admin-lock">
+        <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+          管理者パスワードを入力してください。<br>
+          <span style="font-size:0.78rem; color:var(--text-muted);">（初期パスワード: <code>admin</code>）</span>
+        </p>
+        <div style="display:flex; gap:0.5rem; max-width:320px; margin:0 auto;">
+          <input type="password" id="adminPassInput" placeholder="管理者パスワード" class="admin-input">
+          <button id="adminUnlockBtn" class="nav-btn primary">認証</button>
+        </div>
+        <div id="adminPassError" class="auth-error" style="text-align:center; margin-top:0.4rem;"></div>
+      </div>
+
+      <!-- Admin Panel Content (Visible after unlock) -->
+      <div id="adminPanelContent" style="display:none; flex-direction:column; gap:1.25rem;">
+        <!-- Top Stats Row -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-item">
+            <span class="label">登録アカウント数</span>
+            <span id="adminTotalUsers" class="val">0</span>
+          </div>
+          <div class="admin-stat-item">
+            <span class="label">累計総解答数</span>
+            <span id="adminTotalAnswers" class="val">0</span>
+          </div>
+          <div class="admin-stat-item">
+            <span class="label">全ユーザー平均正答率</span>
+            <span id="adminAvgAccuracy" class="val">0%</span>
+          </div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ユーザー名</th>
+                <th>登録日時</th>
+                <th>解答数</th>
+                <th>正答率</th>
+                <th>要復習数</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTbody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Detail Drilldown Area -->
+        <div id="adminUserDetailArea" style="display:none; flex-direction:column; gap:0.75rem; background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="font-size:0.95rem; font-weight:700;"><span id="detailUserName"></span> の直近解答履歴</h4>
+            <button id="closeDetailBtn" class="btn-icon" style="width:1.8rem; height:1.8rem;"><i data-lucide="x"></i></button>
+          </div>
+          <div id="adminUserHistoryList" class="history-list" style="max-height:200px;">
+            <!-- History entries -->
+          </div>
+        </div>
+
+        <!-- Backup & Admin Actions -->
+        <div class="admin-actions-bar">
+          <button id="exportDataBtn" class="nav-btn" style="font-size:0.82rem;">
+            <i data-lucide="download"></i> 全データJSON出力
+          </button>
+          <button id="adminLockBtn" class="nav-btn" style="font-size:0.82rem; margin-left:auto;">
+            <i data-lucide="lock"></i> ログアウト
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Auth Modal (Login / Register) -->
   <div id="authModal" class="modal-backdrop">
     <div class="modal-card auth-card">
@@ -235,7 +322,7 @@
         <button id="tabToRegister" class="auth-tab">新規登録</button>
       </div>
 
-      <form id="authForm" onsubmit="return false;">
+      <form id="authForm">
         <div class="form-group">
           <label for="authUsername">ユーザー名</label>
           <input type="text" id="authUsername" placeholder="例: yamada" required autocomplete="username">

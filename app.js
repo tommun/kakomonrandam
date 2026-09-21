@@ -1,16 +1,17 @@
-// Math Quiz Web Application Logic (with Account & History support)
+// Math Quiz Web Application Logic (with Account, History & Admin Dashboard)
 
 // Storage Keys
 const STORAGE_KEYS = {
   THEME: 'math_quiz_theme',
   CURRENT_USER: 'math_quiz_current_user',
   USERS_DB: 'math_quiz_users_db',
-  USER_DATA_PREFIX: 'math_quiz_data_'
+  USER_DATA_PREFIX: 'math_quiz_data_',
+  ADMIN_PASS: 'math_quiz_admin_pass'
 };
 
 // Application State
 const state = {
-  currentUser: 'guest', // 'guest' or username
+  currentUser: 'guest',
   mode: 'infinite', // 'infinite', 'test10', 'bookmarks'
   activeChapter: 'all', // 'all', 1, 2, ..., 8
   pool: [],
@@ -23,11 +24,11 @@ const state = {
     incorrect: 0
   },
   history: [], // [{ id, number, chapterName, result: 'correct'|'incorrect', time: string }]
-  testResults: [] // For 10-question test mode
+  testResults: [],
+  isAdminUnlocked: false
 };
 
-// --- Fallback Safe Password Hashing ---
-// Works on both HTTPS (crypto.subtle) and file:// / HTTP environments
+// --- Password Hashing (SHA-256 via Web Crypto API with Fallback) ---
 async function hashPassword(password) {
   const salted = password + "_math_salt_2026";
   
@@ -43,7 +44,7 @@ async function hashPassword(password) {
     }
   }
 
-  // Fallback simple hash (djb2 + hex)
+  // Fallback simple hash
   let h1 = 0xdeadbeef, h2 = 0x41c64e6d;
   for (let i = 0; i < salted.length; i++) {
     const ch = salted.charCodeAt(i);
@@ -156,8 +157,8 @@ function updateAuthUI() {
 }
 
 // --- User Progress Data Storage ---
-function getUserDataKey() {
-  return `${STORAGE_KEYS.USER_DATA_PREFIX}${state.currentUser}`;
+function getUserDataKey(user = state.currentUser) {
+  return `${STORAGE_KEYS.USER_DATA_PREFIX}${user}`;
 }
 
 function loadUserData() {
@@ -186,12 +187,208 @@ function saveUserData() {
     const data = {
       bookmarks: [...state.bookmarks],
       stats: state.stats,
-      history: state.history.slice(0, 100) // Keep latest 100
+      history: state.history.slice(0, 100)
     };
     localStorage.setItem(getUserDataKey(), JSON.stringify(data));
   } catch (e) {
     console.error('Failed to save user data:', e);
   }
+}
+
+// --- Admin Panel Logic ---
+function getAdminPassword() {
+  return localStorage.getItem(STORAGE_KEYS.ADMIN_PASS) || 'admin';
+}
+
+function getAllAccountsSummary() {
+  const db = getUsersDB();
+  const list = [];
+
+  // Registered users
+  Object.keys(db).forEach(uname => {
+    const u = db[uname];
+    let udata = { stats: { answered: 0, correct: 0, incorrect: 0 }, bookmarks: [], history: [] };
+    try {
+      const raw = localStorage.getItem(getUserDataKey(uname));
+      if (raw) udata = JSON.parse(raw);
+    } catch (e) {}
+
+    const total = (udata.stats.correct || 0) + (udata.stats.incorrect || 0);
+    const acc = total > 0 ? Math.round(((udata.stats.correct || 0) / total) * 100) : 0;
+
+    list.push({
+      username: uname,
+      createdAt: u.createdAt || '不明',
+      answered: udata.stats.answered || 0,
+      accuracy: acc,
+      bookmarksCount: (udata.bookmarks || []).length,
+      history: udata.history || [],
+      isGuest: false
+    });
+  });
+
+  // Guest data check
+  try {
+    const guestRaw = localStorage.getItem(getUserDataKey('guest'));
+    if (guestRaw) {
+      const gdata = JSON.parse(guestRaw);
+      const total = (gdata.stats.correct || 0) + (gdata.stats.incorrect || 0);
+      const acc = total > 0 ? Math.round(((gdata.stats.correct || 0) / total) * 100) : 0;
+      if (gdata.stats.answered > 0 || (gdata.bookmarks || []).length > 0) {
+        list.push({
+          username: 'guest (未ログイン)',
+          createdAt: 'ローカル',
+          answered: gdata.stats.answered || 0,
+          accuracy: acc,
+          bookmarksCount: (gdata.bookmarks || []).length,
+          history: gdata.history || [],
+          isGuest: true
+        });
+      }
+    }
+  } catch (e) {}
+
+  return list;
+}
+
+function renderAdminDashboard() {
+  const users = getAllAccountsSummary();
+  const totalUsersEl = document.getElementById('adminTotalUsers');
+  const totalAnswersEl = document.getElementById('adminTotalAnswers');
+  const avgAccuracyEl = document.getElementById('adminAvgAccuracy');
+  const tbody = document.getElementById('adminUsersTbody');
+
+  let totalAnswers = 0;
+  let totalAccSum = 0;
+  let activeUsersCount = 0;
+
+  tbody.innerHTML = '';
+
+  if (users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted);">登録されたアカウントはまだありません。</td></tr>';
+  } else {
+    users.forEach(u => {
+      totalAnswers += u.answered;
+      if (u.answered > 0) {
+        totalAccSum += u.accuracy;
+        activeUsersCount++;
+      }
+
+      const isCurrent = state.currentUser === u.username;
+      const dateStr = u.createdAt.includes('T') ? u.createdAt.split('T')[0] : u.createdAt;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong>${u.username}</strong>
+          ${isCurrent ? '<span style="font-size:0.7rem; background:var(--accent-light); color:var(--accent-primary); padding:0.1rem 0.4rem; border-radius:4px; margin-left:0.3rem;">ログイン中</span>' : ''}
+        </td>
+        <td>${dateStr}</td>
+        <td>${u.answered} 回</td>
+        <td><strong>${u.accuracy}%</strong></td>
+        <td>${u.bookmarksCount} 問</td>
+        <td>
+          <div style="display:flex; gap:0.3rem;">
+            <button class="btn-sm-action btn-view-hist" data-username="${u.username}">履歴 (${u.history.length})</button>
+            ${!u.isGuest ? `<button class="btn-sm-action danger btn-del-user" data-username="${u.username}">削除</button>` : ''}
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  totalUsersEl.textContent = users.filter(u => !u.isGuest).length;
+  totalAnswersEl.textContent = totalAnswers;
+  const avgAcc = activeUsersCount > 0 ? Math.round(totalAccSum / activeUsersCount) : 0;
+  avgAccuracyEl.textContent = `${avgAcc}%`;
+
+  // Attach table button events
+  tbody.querySelectorAll('.btn-view-hist').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const uname = e.currentTarget.dataset.username;
+      showUserHistoryDrilldown(uname);
+    });
+  });
+
+  tbody.querySelectorAll('.btn-del-user').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const uname = e.currentTarget.dataset.username;
+      if (confirm(`本当にユーザー「${uname}」を削除しますか？\nこの操作は取り消せません。`)) {
+        deleteAccount(uname);
+      }
+    });
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function showUserHistoryDrilldown(username) {
+  const detailArea = document.getElementById('adminUserDetailArea');
+  const nameEl = document.getElementById('detailUserName');
+  const listEl = document.getElementById('adminUserHistoryList');
+
+  nameEl.textContent = username;
+  listEl.innerHTML = '';
+
+  const cleanName = username.replace(' (未ログイン)', '');
+  let udata = { history: [] };
+  try {
+    const raw = localStorage.getItem(getUserDataKey(cleanName));
+    if (raw) udata = JSON.parse(raw);
+  } catch (e) {}
+
+  if (!udata.history || udata.history.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--text-muted); font-size:0.85rem;">このユーザーの解答履歴はありません。</div>';
+  } else {
+    udata.history.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `
+        <div class="history-item-left">
+          <span class="history-num">${item.number} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${item.chapterName})</span></span>
+          <span class="history-time">${item.time}</span>
+        </div>
+        <div>
+          <span class="history-badge ${item.result}">
+            ${item.result === 'correct' ? '⭕ 正解' : '❌ 要復習'}
+          </span>
+        </div>
+      `;
+      listEl.appendChild(div);
+    });
+  }
+
+  detailArea.style.display = 'flex';
+}
+
+function deleteAccount(username) {
+  const db = getUsersDB();
+  delete db[username];
+  saveUsersDB(db);
+  localStorage.removeItem(getUserDataKey(username));
+
+  if (state.currentUser === username) {
+    logoutUser();
+  }
+
+  renderAdminDashboard();
+  alert(`ユーザー「${username}」を削除しました。`);
+}
+
+function exportAllDataJSON() {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    users: getUsersDB(),
+    accountsProgress: getAllAccountsSummary()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `math_quiz_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // --- KaTeX Rendering ---
@@ -417,7 +614,6 @@ function recordEvaluation(isCorrect) {
     document.getElementById('evalCorrect').classList.remove('selected');
   }
 
-  // Record to history timeline
   state.history.unshift({
     id: q.id,
     number: q.number,
@@ -467,7 +663,7 @@ function openHistoryModal() {
       div.innerHTML = `
         <div class="history-item-left">
           <span class="history-num">${item.number} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${item.chapterName})</span></span>
-          <span class="history-time"><i data-lucide="clock" style="width:0.75rem;height:0.75rem;vertical-align:middle;"></i> ${item.time}</span>
+          <span class="history-time">${item.time}</span>
         </div>
         <div>
           <span class="history-badge ${item.result}">
@@ -621,7 +817,7 @@ function setupEventListeners() {
   const authSubmitBtn = document.getElementById('authSubmitBtn');
   const authErrorMsg = document.getElementById('authErrorMsg');
   const logoutBtn = document.getElementById('logoutBtn');
-  let authMode = 'login'; // 'login' or 'register'
+  let authMode = 'login';
 
   function setAuthMode(mode) {
     authMode = mode;
@@ -692,7 +888,6 @@ function setupEventListeners() {
     }
   }
 
-  // Handle form submit reliably
   document.getElementById('authForm').addEventListener('submit', (e) => {
     if (e) e.preventDefault();
     handleAuthAction(e);
@@ -704,11 +899,75 @@ function setupEventListeners() {
     alert('ログアウトしました（ゲスト利用に戻りました）。');
   });
 
+  // --- Admin Modal Controls ---
+  const adminModal = document.getElementById('adminModal');
+  const adminModalBtn = document.getElementById('adminModalBtn');
+  const adminModalClose = document.getElementById('adminModalClose');
+  const adminLockScreen = document.getElementById('adminLockScreen');
+  const adminPanelContent = document.getElementById('adminPanelContent');
+  const adminPassInput = document.getElementById('adminPassInput');
+  const adminUnlockBtn = document.getElementById('adminUnlockBtn');
+  const adminPassError = document.getElementById('adminPassError');
+  const adminLockBtn = document.getElementById('adminLockBtn');
+  const exportDataBtn = document.getElementById('exportDataBtn');
+  const closeDetailBtn = document.getElementById('closeDetailBtn');
+
+  adminModalBtn.addEventListener('click', () => {
+    adminModal.classList.add('visible');
+    adminPassError.textContent = '';
+    if (state.isAdminUnlocked) {
+      adminLockScreen.style.display = 'none';
+      adminPanelContent.style.display = 'flex';
+      renderAdminDashboard();
+    } else {
+      adminLockScreen.style.display = 'block';
+      adminPanelContent.style.display = 'none';
+      adminPassInput.value = '';
+    }
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  adminModalClose.addEventListener('click', () => {
+    adminModal.classList.remove('visible');
+  });
+
+  function tryUnlockAdmin() {
+    const entered = adminPassInput.value;
+    const correct = getAdminPassword();
+    if (entered === correct) {
+      state.isAdminUnlocked = true;
+      adminLockScreen.style.display = 'none';
+      adminPanelContent.style.display = 'flex';
+      renderAdminDashboard();
+    } else {
+      adminPassError.textContent = 'パスワードが違います（初期設定: admin）';
+    }
+  }
+
+  adminUnlockBtn.addEventListener('click', tryUnlockAdmin);
+  adminPassInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryUnlockAdmin();
+  });
+
+  adminLockBtn.addEventListener('click', () => {
+    state.isAdminUnlocked = false;
+    adminLockScreen.style.display = 'block';
+    adminPanelContent.style.display = 'none';
+    adminPassInput.value = '';
+  });
+
+  closeDetailBtn.addEventListener('click', () => {
+    document.getElementById('adminUserDetailArea').style.display = 'none';
+  });
+
+  exportDataBtn.addEventListener('click', exportAllDataJSON);
+
   // Close modals on backdrop click
   window.addEventListener('click', (e) => {
     if (e.target === authModal) authModal.classList.remove('visible');
     const histModal = document.getElementById('historyModal');
     if (e.target === histModal) histModal.classList.remove('visible');
+    if (e.target === adminModal) adminModal.classList.remove('visible');
   });
 
   // Keyboard
