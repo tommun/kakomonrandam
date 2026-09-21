@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>??????? ??????????</title>
+
+  <!-- KaTeX for Beautiful Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">?</div>
+        <div class="logo-title">
+          <h1>???? ??????????</h1>
+          <p>????????????????????????? (?102?)</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="resetStatsBtn" class="btn-icon" title="?????????">
+          <i data-lucide="rotate-ccw"></i>
+        </button>
+        <button id="themeToggleBtn" class="btn-icon" title="????????">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Mode Selector Tabs -->
+    <nav class="mode-tabs">
+      <button class="tab-btn active" data-mode="infinite">
+        <i data-lucide="shuffle"></i> ??????
+      </button>
+      <button class="tab-btn" data-mode="test10">
+        <i data-lucide="award"></i> 10??????
+      </button>
+      <button class="tab-btn" data-mode="bookmarks">
+        <i data-lucide="bookmark"></i> ??????
+        <span id="bookmarkTabBadge" class="tab-badge">0</span>
+      </button>
+    </nav>
+
+    <!-- Chapter Filters -->
+    <section class="filter-wrapper">
+      <div class="filter-label">
+        <span>???????</span>
+        <span style="font-size: 0.75rem;">?????????</span>
+      </div>
+      <div class="chips-scroll">
+        <button class="chip-btn active" data-chapter="all">
+          ??? <span class="chip-count">(102)</span>
+        </button>
+        <button class="chip-btn" data-chapter="1">
+          ?1?: ??????? <span class="chip-count">(6)</span>
+        </button>
+        <button class="chip-btn" data-chapter="2">
+          ?2?: ??????? <span class="chip-count">(22)</span>
+        </button>
+        <button class="chip-btn" data-chapter="3">
+          ?3?: ????????? <span class="chip-count">(8)</span>
+        </button>
+        <button class="chip-btn" data-chapter="4">
+          ?4?: ??????? <span class="chip-count">(22)</span>
+        </button>
+        <button class="chip-btn" data-chapter="5">
+          ?5?: ????????? <span class="chip-count">(10)</span>
+        </button>
+        <button class="chip-btn" data-chapter="6">
+          ?6?: ???????? <span class="chip-count">(10)</span>
+        </button>
+        <button class="chip-btn" data-chapter="7">
+          ?7?: ???????? <span class="chip-count">(18)</span>
+        </button>
+        <button class="chip-btn" data-chapter="8">
+          ?8?: ????????? <span class="chip-count">(6)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="status-bar">
+      <div class="stat-box">
+        <span class="stat-title">????</span>
+        <span id="statTotal" class="stat-value">102</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-title">????</span>
+        <span id="statAnswered" class="stat-value">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-title">???</span>
+        <span id="statAccuracy" class="stat-value">0%</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-title">??????</span>
+        <span id="statBookmarks" class="stat-value">0</span>
+      </div>
+    </section>
+
+    <!-- Quiz Card -->
+    <article id="quizCard" class="quiz-card">
+      <!-- Card Header -->
+      <div class="card-header">
+        <div class="card-tags">
+          <span id="badgeNumber" class="badge-number">?? 1.1</span>
+          <span id="badgeChapter" class="badge-chapter">?1??????????</span>
+        </div>
+        <div class="card-tools">
+          <button id="bookmarkBtn" class="bookmark-btn" title="????????????? (B)">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Question Text -->
+      <div id="questionText" class="question-body">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Answer Toggle Button -->
+      <button id="answerToggleBtn" class="answer-toggle-btn">
+        <i data-lucide="eye"></i> ??????? <span style="font-size:0.75rem;opacity:0.7;">(Space)</span>
+      </button>
+
+      <!-- Answer Container (Hidden by default) -->
+      <div id="answerContainer" class="answer-container">
+        <div class="answer-title">
+          <i data-lucide="check-circle-2"></i> ?????
+        </div>
+        <div id="answerText" class="answer-body">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Self Evaluation Area -->
+      <div id="evalArea" class="evaluation-area">
+        <span class="evaluation-label">????????????</span>
+        <div class="evaluation-buttons">
+          <button id="evalCorrect" class="eval-btn correct">
+            <i data-lucide="check"></i> ????????? <kbd>1</kbd>
+          </button>
+          <button id="evalIncorrect" class="eval-btn incorrect">
+            <i data-lucide="x"></i> ?????????? <kbd>2</kbd>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Footer -->
+      <div class="card-nav">
+        <button id="prevBtn" class="nav-btn">
+          <i data-lucide="chevron-left"></i> ????
+        </button>
+        <span id="cardCounter" class="counter-text">1 / 102</span>
+        <button id="nextBtn" class="nav-btn primary">
+          ???? <i data-lucide="chevron-right"></i>
+        </button>
+      </div>
+    </article>
+
+    <!-- Empty State (e.g., Bookmark mode is empty) -->
+    <div id="emptyState" class="empty-state">
+      <i data-lucide="inbox" class="empty-icon"></i>
+      <h3>????????????</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        ???????????????????????????????????<br>
+        ??????????????????????????????????????????
+      </p>
+    </div>
+
+    <!-- Shortcut Legend -->
+    <div class="shortcut-legend">
+      <div class="shortcut-item"><kbd>Space</kbd> ?????/???</div>
+      <div class="shortcut-item"><kbd>Enter</kbd> / <kbd>?</kbd> ????</div>
+      <div class="shortcut-item"><kbd>?</kbd> ????</div>
+      <div class="shortcut-item"><kbd>1</kbd> ???</div>
+      <div class="shortcut-item"><kbd>2</kbd> ???</div>
+      <div class="shortcut-item"><kbd>B</kbd> ????????</div>
+    </div>
+
+  </main>
+
+  <!-- 10-Question Test Result Modal -->
+  <div id="testResultModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+        10?????? ???
+      </div>
+      <div id="modalScore" class="modal-score">8 / 10</div>
+      <p id="modalText" style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+        <!-- Injected via JavaScript -->
+      </p>
+      <button id="modalCloseBtn" class="nav-btn primary" style="justify-content: center; width: 100%;">
+        ????????
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>???? ??????? &copy; 2026 | ?62?? 102???</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
