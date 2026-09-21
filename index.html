@@ -147,12 +147,19 @@
         <div class="card-tags">
           <span id="badgeNumber" class="badge-number">演習 1.1</span>
           <span id="badgeChapter" class="badge-chapter">第1章：線形計画法と領域</span>
+          <span id="badgeGroup" class="badge-group" style="display:none;"></span>
         </div>
         <div class="card-tools">
           <button id="bookmarkBtn" class="bookmark-btn" title="要復習・ブックマークに追加 (B)">
             <i data-lucide="bookmark"></i>
           </button>
         </div>
+      </div>
+
+      <!-- Parent Context (for linked continuous questions) -->
+      <div id="parentContextBox" class="parent-context-box" style="display:none;">
+        <div class="parent-context-title"><i data-lucide="link"></i> 前問からの前提条件・設定</div>
+        <div id="parentContextText"></div>
       </div>
 
       <!-- Question Text -->

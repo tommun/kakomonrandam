@@ -432,14 +432,39 @@ function autoAnnotateMath(text) {
   return str;
 }
 
-// Shuffle
-function shuffle(array) {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
+// Shuffle with Linked Groups Preservation
+// Ensures continuous/multi-part questions always appear consecutively in correct order
+function shuffleWithGroups(list) {
+  const units = [];
+  const groupMap = new Map();
+
+  list.forEach(q => {
+    if (q.groupId) {
+      if (!groupMap.has(q.groupId)) {
+        groupMap.set(q.groupId, []);
+      }
+      groupMap.get(q.groupId).push(q);
+    } else {
+      units.push([q]);
+    }
+  });
+
+  // Sort each group by its sequential groupOrder
+  groupMap.forEach((items) => {
+    items.sort((a, b) => (a.groupOrder || 0) - (b.groupOrder || 0));
+    units.push(items);
+  });
+
+  // Shuffle the units (each unit is either a single question or an ordered array of linked questions)
+  for (let i = units.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [units[i], units[j]] = [units[j], units[i]];
   }
-  return arr;
+
+  // Flatten
+  const result = [];
+  units.forEach(u => result.push(...u));
+  return result;
 }
 
 // Rebuild pool
@@ -454,7 +479,7 @@ function rebuildPool() {
     list = list.filter(q => state.bookmarks.has(q.id));
   }
 
-  state.pool = shuffle(list);
+  state.pool = shuffleWithGroups(list);
 
   if (state.mode === 'test10') {
     state.pool = state.pool.slice(0, 10);
@@ -491,6 +516,26 @@ function renderCurrentQuestion() {
 
   document.getElementById('badgeChapter').textContent = q.chapterName;
   document.getElementById('badgeNumber').textContent = q.number;
+
+  // Linked question group badge
+  const badgeGroup = document.getElementById('badgeGroup');
+  if (q.groupId && q.groupTotal > 1) {
+    badgeGroup.style.display = 'inline-flex';
+    badgeGroup.innerHTML = `<i data-lucide="link" style="width:0.75rem;height:0.75rem;"></i> 連問 (${q.groupOrder}/${q.groupTotal})`;
+  } else {
+    badgeGroup.style.display = 'none';
+  }
+
+  // Parent context (conditions from previous questions)
+  const contextBox = document.getElementById('parentContextBox');
+  const contextText = document.getElementById('parentContextText');
+  if (q.parentContext) {
+    contextBox.style.display = 'flex';
+    contextText.innerHTML = autoAnnotateMath(q.parentContext);
+    renderEquationsInElement(contextText);
+  } else {
+    contextBox.style.display = 'none';
+  }
 
   const bookmarkBtn = document.getElementById('bookmarkBtn');
   if (state.bookmarks.has(q.id)) {
@@ -567,7 +612,7 @@ function nextQuestion() {
   } else if (state.mode === 'test10') {
     showTestResult();
   } else {
-    state.pool = shuffle(state.pool);
+    state.pool = shuffleWithGroups(state.pool);
     state.currentIndex = 0;
     renderCurrentQuestion();
   }
