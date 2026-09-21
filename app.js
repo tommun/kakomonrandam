@@ -26,13 +26,33 @@ const state = {
   testResults: [] // For 10-question test mode
 };
 
-// --- Password Hashing (SHA-256 via Web Crypto API) ---
+// --- Fallback Safe Password Hashing ---
+// Works on both HTTPS (crypto.subtle) and file:// / HTTP environments
 async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + "_math_salt_2026");
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const salted = password + "_math_salt_2026";
+  
+  if (window.crypto && window.crypto.subtle && window.crypto.subtle.digest) {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(salted);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      console.warn('SubtleCrypto error, falling back:', e);
+    }
+  }
+
+  // Fallback simple hash (djb2 + hex)
+  let h1 = 0xdeadbeef, h2 = 0x41c64e6d;
+  for (let i = 0; i < salted.length; i++) {
+    const ch = salted.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
 }
 
 // --- Account Management ---
@@ -56,11 +76,11 @@ function saveUsersDB(db) {
 async function registerUser(username, password) {
   const cleanUser = username.trim();
   if (!cleanUser || !password) return { success: false, message: 'ユーザー名とパスワードを入力してください。' };
-  if (cleanUser === 'guest') return { success: false, message: 'そのユーザー名は使用できません。' };
+  if (cleanUser.toLowerCase() === 'guest') return { success: false, message: '「guest」は予約名のため使用できません。' };
 
   const db = getUsersDB();
   if (db[cleanUser]) {
-    return { success: false, message: 'このユーザー名は既に使用されています。' };
+    return { success: false, message: 'このユーザー名は既に登録されています。「ログイン」タブからログインしてください。' };
   }
 
   const hash = await hashPassword(password);
@@ -71,7 +91,6 @@ async function registerUser(username, password) {
   };
   saveUsersDB(db);
 
-  // Switch to new user
   setCurrentUser(cleanUser);
   return { success: true };
 }
@@ -82,13 +101,18 @@ async function loginUser(username, password) {
 
   const db = getUsersDB();
   const user = db[cleanUser];
+  
   if (!user) {
-    return { success: false, message: 'ユーザーが見つかりません。「新規登録」から作成してください。' };
+    return { 
+      success: false, 
+      isNotFound: true,
+      message: `ユーザー「${cleanUser}」は見つかりませんでした。「新規登録」ボタンを押して登録してください。` 
+    };
   }
 
   const hash = await hashPassword(password);
   if (user.passwordHash !== hash) {
-    return { success: false, message: 'パスワードが正しくありません。' };
+    return { success: false, message: 'パスワードが間違っています。' };
   }
 
   setCurrentUser(cleanUser);
@@ -162,7 +186,7 @@ function saveUserData() {
     const data = {
       bookmarks: [...state.bookmarks],
       stats: state.stats,
-      history: state.history.slice(0, 100) // Keep latest 100 entries
+      history: state.history.slice(0, 100) // Keep latest 100
     };
     localStorage.setItem(getUserDataKey(), JSON.stringify(data));
   } catch (e) {
@@ -193,15 +217,15 @@ function autoAnnotateMath(text) {
   if (!text) return '';
   let str = text;
 
-  // Σ記号
+  // Σ
   str = str.replace(/Σ_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\sum_{$1}^{$2}$');
   str = str.replace(/Σ_\{([^}]+)\}/g, '$\\sum_{$1}$');
   str = str.replace(/Σ/g, '$\\Sigma$');
 
-  // 極限: lim_{n->∞}
+  // lim
   str = str.replace(/lim_\{([^}]+)\}/g, '$\\lim_{$1}$');
 
-  // 積分: ∫_{0}^{a}
+  // ∫
   str = str.replace(/∫_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\int_{$1}^{$2}$');
   str = str.replace(/∫/g, '$\\int$');
 
@@ -373,7 +397,7 @@ function toggleBookmark() {
   updateStatsDisplay();
 }
 
-// Self Evaluation & History Recording
+// Self Evaluation & History
 function recordEvaluation(isCorrect) {
   if (!state.pool || state.pool.length === 0) return;
   const q = state.pool[state.currentIndex];
@@ -428,14 +452,14 @@ function updateStatsDisplay() {
   }
 }
 
-// Show History Modal
+// History Modal
 function openHistoryModal() {
   const modal = document.getElementById('historyModal');
   const container = document.getElementById('historyListContainer');
   container.innerHTML = '';
 
   if (!state.history || state.history.length === 0) {
-    container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">まだ解答履歴がありません。問題を解いて「解けた」「要復習」を押すとここにタイムラインが記録されます。</div>';
+    container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">まだ解答履歴がありません。<br>問題を解いて「解けた」「要復習」を押すとここにタイムラインが記録されます。</div>';
   } else {
     state.history.forEach(item => {
       const div = document.createElement('div');
@@ -451,7 +475,6 @@ function openHistoryModal() {
           </span>
         </div>
       `;
-      // Click to jump to question
       div.style.cursor = 'pointer';
       div.title = 'クリックでこの問題を表示';
       div.addEventListener('click', () => {
@@ -600,6 +623,20 @@ function setupEventListeners() {
   const logoutBtn = document.getElementById('logoutBtn');
   let authMode = 'login'; // 'login' or 'register'
 
+  function setAuthMode(mode) {
+    authMode = mode;
+    authErrorMsg.textContent = '';
+    if (mode === 'login') {
+      tabToLogin.classList.add('active');
+      tabToRegister.classList.remove('active');
+      authSubmitBtn.textContent = 'ログイン';
+    } else {
+      tabToRegister.classList.add('active');
+      tabToLogin.classList.remove('active');
+      authSubmitBtn.textContent = 'アカウント新規登録';
+    }
+  }
+
   authModalBtn.addEventListener('click', () => {
     authModal.classList.add('visible');
     authErrorMsg.textContent = '';
@@ -610,26 +647,19 @@ function setupEventListeners() {
     authModal.classList.remove('visible');
   });
 
-  tabToLogin.addEventListener('click', () => {
-    authMode = 'login';
-    tabToLogin.classList.add('active');
-    tabToRegister.classList.remove('active');
-    authSubmitBtn.textContent = 'ログイン';
-    authErrorMsg.textContent = '';
-  });
+  tabToLogin.addEventListener('click', () => setAuthMode('login'));
+  tabToRegister.addEventListener('click', () => setAuthMode('register'));
 
-  tabToRegister.addEventListener('click', () => {
-    authMode = 'register';
-    tabToRegister.classList.add('active');
-    tabToLogin.classList.remove('active');
-    authSubmitBtn.textContent = 'アカウント新規登録';
-    authErrorMsg.textContent = '';
-  });
-
-  document.getElementById('authForm').addEventListener('submit', async () => {
+  async function handleAuthAction(e) {
+    if (e) e.preventDefault();
     const user = document.getElementById('authUsername').value.trim();
     const pass = document.getElementById('authPassword').value;
     authErrorMsg.textContent = '';
+
+    if (!user || !pass) {
+      authErrorMsg.textContent = 'ユーザー名とパスワードの両方を入力してください。';
+      return;
+    }
 
     if (authMode === 'register') {
       const res = await registerUser(user, pass);
@@ -637,7 +667,7 @@ function setupEventListeners() {
         authModal.classList.remove('visible');
         document.getElementById('authUsername').value = '';
         document.getElementById('authPassword').value = '';
-        alert(`ユーザー「${user}」を新規登録し、ログインしました！\n進捗はすべてこのアカウントに個別に記録されます。`);
+        alert(`ユーザー「${user}」を新規登録し、ログインしました！\n進捗はこのアカウントに個別に記録されます。`);
       } else {
         authErrorMsg.textContent = res.message;
       }
@@ -647,16 +677,38 @@ function setupEventListeners() {
         authModal.classList.remove('visible');
         document.getElementById('authUsername').value = '';
         document.getElementById('authPassword').value = '';
+        alert(`ユーザー「${user}」としてログインしました！`);
       } else {
-        authErrorMsg.textContent = res.message;
+        if (res.isNotFound) {
+          authErrorMsg.innerHTML = `${res.message} <br><button id="quickSwitchToRegister" style="margin-top:0.4rem; padding:0.2rem 0.6rem; border-radius:4px; border:1px solid var(--accent-primary); background:var(--accent-light); color:var(--accent-primary); cursor:pointer; font-weight:bold;">👉 「新規登録」タブに切り替える</button>`;
+          const switchBtn = document.getElementById('quickSwitchToRegister');
+          if (switchBtn) {
+            switchBtn.addEventListener('click', () => setAuthMode('register'));
+          }
+        } else {
+          authErrorMsg.textContent = res.message;
+        }
       }
     }
+  }
+
+  // Handle form submit reliably
+  document.getElementById('authForm').addEventListener('submit', (e) => {
+    if (e) e.preventDefault();
+    handleAuthAction(e);
   });
 
   logoutBtn.addEventListener('click', () => {
     logoutUser();
     authModal.classList.remove('visible');
     alert('ログアウトしました（ゲスト利用に戻りました）。');
+  });
+
+  // Close modals on backdrop click
+  window.addEventListener('click', (e) => {
+    if (e.target === authModal) authModal.classList.remove('visible');
+    const histModal = document.getElementById('historyModal');
+    if (e.target === histModal) histModal.classList.remove('visible');
   });
 
   // Keyboard
