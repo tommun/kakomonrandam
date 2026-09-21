@@ -1,15 +1,16 @@
-// Math Quiz Web Application Logic
+// Math Quiz Web Application Logic (with Account & History support)
 
-// Local Storage Keys
+// Storage Keys
 const STORAGE_KEYS = {
   THEME: 'math_quiz_theme',
-  BOOKMARKS: 'math_quiz_bookmarks',
-  STATS: 'math_quiz_stats',
-  RESULTS: 'math_quiz_results'
+  CURRENT_USER: 'math_quiz_current_user',
+  USERS_DB: 'math_quiz_users_db',
+  USER_DATA_PREFIX: 'math_quiz_data_'
 };
 
 // Application State
 const state = {
+  currentUser: 'guest', // 'guest' or username
   mode: 'infinite', // 'infinite', 'test10', 'bookmarks'
   activeChapter: 'all', // 'all', 1, 2, ..., 8
   pool: [],
@@ -21,11 +22,155 @@ const state = {
     correct: 0,
     incorrect: 0
   },
-  testResults: [], // For 10-question test mode
-  history: [] // Question IDs seen in current session
+  history: [], // [{ id, number, chapterName, result: 'correct'|'incorrect', time: string }]
+  testResults: [] // For 10-question test mode
 };
 
-// Render equations using KaTeX auto-render or direct KaTeX calls
+// --- Password Hashing (SHA-256 via Web Crypto API) ---
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "_math_salt_2026");
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// --- Account Management ---
+function getUsersDB() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.USERS_DB);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveUsersDB(db) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.USERS_DB, JSON.stringify(db));
+  } catch (e) {
+    console.error('Failed to save users db:', e);
+  }
+}
+
+async function registerUser(username, password) {
+  const cleanUser = username.trim();
+  if (!cleanUser || !password) return { success: false, message: 'ユーザー名とパスワードを入力してください。' };
+  if (cleanUser === 'guest') return { success: false, message: 'そのユーザー名は使用できません。' };
+
+  const db = getUsersDB();
+  if (db[cleanUser]) {
+    return { success: false, message: 'このユーザー名は既に使用されています。' };
+  }
+
+  const hash = await hashPassword(password);
+  db[cleanUser] = {
+    username: cleanUser,
+    passwordHash: hash,
+    createdAt: new Date().toISOString()
+  };
+  saveUsersDB(db);
+
+  // Switch to new user
+  setCurrentUser(cleanUser);
+  return { success: true };
+}
+
+async function loginUser(username, password) {
+  const cleanUser = username.trim();
+  if (!cleanUser || !password) return { success: false, message: 'ユーザー名とパスワードを入力してください。' };
+
+  const db = getUsersDB();
+  const user = db[cleanUser];
+  if (!user) {
+    return { success: false, message: 'ユーザーが見つかりません。「新規登録」から作成してください。' };
+  }
+
+  const hash = await hashPassword(password);
+  if (user.passwordHash !== hash) {
+    return { success: false, message: 'パスワードが正しくありません。' };
+  }
+
+  setCurrentUser(cleanUser);
+  return { success: true };
+}
+
+function logoutUser() {
+  setCurrentUser('guest');
+}
+
+function setCurrentUser(username) {
+  state.currentUser = username;
+  localStorage.setItem(STORAGE_KEYS.CURRENT_USER, username);
+  loadUserData();
+  updateAuthUI();
+  rebuildPool();
+}
+
+function updateAuthUI() {
+  const authBtnText = document.getElementById('authBtnText');
+  const userDisplay = document.getElementById('statCurrentUser');
+  const authForm = document.getElementById('authForm');
+  const logoutSection = document.getElementById('logoutSection');
+  const loggedUserName = document.getElementById('loggedUserName');
+  const authModalTitle = document.getElementById('authModalTitle');
+
+  if (state.currentUser === 'guest') {
+    authBtnText.textContent = 'ログイン / 登録';
+    userDisplay.textContent = 'ゲスト';
+    authForm.style.display = 'block';
+    logoutSection.style.display = 'none';
+    authModalTitle.textContent = 'アカウントで学習を記録';
+  } else {
+    authBtnText.textContent = `👤 ${state.currentUser}`;
+    userDisplay.textContent = state.currentUser;
+    authForm.style.display = 'none';
+    logoutSection.style.display = 'flex';
+    loggedUserName.textContent = state.currentUser;
+    authModalTitle.textContent = 'アカウント設定';
+  }
+}
+
+// --- User Progress Data Storage ---
+function getUserDataKey() {
+  return `${STORAGE_KEYS.USER_DATA_PREFIX}${state.currentUser}`;
+}
+
+function loadUserData() {
+  try {
+    const raw = localStorage.getItem(getUserDataKey());
+    if (raw) {
+      const data = JSON.parse(raw);
+      state.bookmarks = new Set(data.bookmarks || []);
+      state.stats = data.stats || { answered: 0, correct: 0, incorrect: 0 };
+      state.history = data.history || [];
+    } else {
+      state.bookmarks = new Set();
+      state.stats = { answered: 0, correct: 0, incorrect: 0 };
+      state.history = [];
+    }
+  } catch (e) {
+    state.bookmarks = new Set();
+    state.stats = { answered: 0, correct: 0, incorrect: 0 };
+    state.history = [];
+  }
+  updateStatsDisplay();
+}
+
+function saveUserData() {
+  try {
+    const data = {
+      bookmarks: [...state.bookmarks],
+      stats: state.stats,
+      history: state.history.slice(0, 100) // Keep latest 100 entries
+    };
+    localStorage.setItem(getUserDataKey(), JSON.stringify(data));
+  } catch (e) {
+    console.error('Failed to save user data:', e);
+  }
+}
+
+// --- KaTeX Rendering ---
 function renderEquationsInElement(element) {
   if (window.renderMathInElement) {
     try {
@@ -44,12 +189,11 @@ function renderEquationsInElement(element) {
   }
 }
 
-// Enhances text with math delimiters where appropriate
 function autoAnnotateMath(text) {
   if (!text) return '';
   let str = text;
 
-  // Σ記号の処理: Σ_{k=1}^{n} や Σ_{k=1}^{10} など
+  // Σ記号
   str = str.replace(/Σ_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\sum_{$1}^{$2}$');
   str = str.replace(/Σ_\{([^}]+)\}/g, '$\\sum_{$1}$');
   str = str.replace(/Σ/g, '$\\Sigma$');
@@ -61,13 +205,13 @@ function autoAnnotateMath(text) {
   str = str.replace(/∫_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\int_{$1}^{$2}$');
   str = str.replace(/∫/g, '$\\int$');
 
-  // 改行をbrに
+  // 改行
   str = str.replace(/\n/g, '<br>');
 
   return str;
 }
 
-// Shuffle array (Fisher-Yates)
+// Shuffle
 function shuffle(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -77,51 +221,20 @@ function shuffle(array) {
   return arr;
 }
 
-// Storage helpers
-function loadStorage() {
-  try {
-    const savedBookmarks = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-    if (savedBookmarks) {
-      state.bookmarks = new Set(JSON.parse(savedBookmarks));
-    }
-    const savedStats = localStorage.getItem(STORAGE_KEYS.STATS);
-    if (savedStats) {
-      state.stats = JSON.parse(savedStats);
-    }
-    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  } catch (e) {
-    console.error('Failed to load local storage:', e);
-  }
-}
-
-function saveStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify([...state.bookmarks]));
-    localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(state.stats));
-  } catch (e) {
-    console.error('Failed to save to local storage:', e);
-  }
-}
-
-// Build question pool based on mode & chapter
+// Rebuild pool
 function rebuildPool() {
   let list = [...QUESTIONS_DATA];
 
-  // Chapter filter
   if (state.activeChapter !== 'all') {
     list = list.filter(q => q.chapter === state.activeChapter);
   }
 
-  // Mode filter
   if (state.mode === 'bookmarks') {
     list = list.filter(q => state.bookmarks.has(q.id));
   }
 
-  // Shuffle
   state.pool = shuffle(list);
 
-  // Limit for 10-question test
   if (state.mode === 'test10') {
     state.pool = state.pool.slice(0, 10);
     state.testResults = [];
@@ -133,7 +246,7 @@ function rebuildPool() {
   updateStatsDisplay();
 }
 
-// Render current question
+// Render question
 function renderCurrentQuestion() {
   const card = document.getElementById('quizCard');
   const emptyState = document.getElementById('emptyState');
@@ -155,11 +268,9 @@ function renderCurrentQuestion() {
 
   const q = state.pool[state.currentIndex];
 
-  // Badge & Number
   document.getElementById('badgeChapter').textContent = q.chapterName;
   document.getElementById('badgeNumber').textContent = q.number;
 
-  // Bookmark status
   const bookmarkBtn = document.getElementById('bookmarkBtn');
   if (state.bookmarks.has(q.id)) {
     bookmarkBtn.classList.add('active');
@@ -169,23 +280,19 @@ function renderCurrentQuestion() {
     bookmarkBtn.innerHTML = '<i data-lucide="bookmark"></i>';
   }
 
-  // Question Text
   const questionEl = document.getElementById('questionText');
   questionEl.innerHTML = autoAnnotateMath(q.question);
   renderEquationsInElement(questionEl);
 
-  // Answer Text
   const answerEl = document.getElementById('answerText');
   answerEl.innerHTML = autoAnnotateMath(q.answer);
   renderEquationsInElement(answerEl);
 
-  // Answer Visibility State
   state.isAnswerVisible = false;
   answerContainer.classList.remove('visible');
   evalArea.classList.remove('visible');
   answerToggleBtn.innerHTML = '<i data-lucide="eye"></i> 解答を表示する <span style="font-size:0.75rem;opacity:0.7;">(Space)</span>';
 
-  // Navigation state
   prevBtn.disabled = state.currentIndex === 0;
   prevBtn.style.opacity = state.currentIndex === 0 ? '0.5' : '1';
   counterText.textContent = `${state.currentIndex + 1} / ${state.pool.length}`;
@@ -196,7 +303,6 @@ function renderCurrentQuestion() {
     nextBtn.innerHTML = '次の問題 <i data-lucide="chevron-right"></i>';
   }
 
-  // Reset evaluation highlight
   resetEvaluationButtons();
 
   if (window.lucide) {
@@ -232,7 +338,7 @@ function toggleAnswer() {
   }
 }
 
-// Next Question
+// Navigation
 function nextQuestion() {
   if (state.currentIndex < state.pool.length - 1) {
     state.currentIndex++;
@@ -240,14 +346,12 @@ function nextQuestion() {
   } else if (state.mode === 'test10') {
     showTestResult();
   } else {
-    // In infinite mode, loop or reshuffle
     state.pool = shuffle(state.pool);
     state.currentIndex = 0;
     renderCurrentQuestion();
   }
 }
 
-// Previous Question
 function prevQuestion() {
   if (state.currentIndex > 0) {
     state.currentIndex--;
@@ -255,7 +359,7 @@ function prevQuestion() {
   }
 }
 
-// Bookmark Toggle
+// Bookmark
 function toggleBookmark() {
   if (state.pool.length === 0) return;
   const q = state.pool[state.currentIndex];
@@ -264,50 +368,58 @@ function toggleBookmark() {
   } else {
     state.bookmarks.add(q.id);
   }
-  saveStorage();
+  saveUserData();
   renderCurrentQuestion();
   updateStatsDisplay();
 }
 
-// Self Evaluation
+// Self Evaluation & History Recording
 function recordEvaluation(isCorrect) {
   if (!state.pool || state.pool.length === 0) return;
   const q = state.pool[state.currentIndex];
   state.stats.answered++;
+  
+  const now = new Date();
+  const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
   if (isCorrect) {
     state.stats.correct++;
     document.getElementById('evalCorrect').classList.add('selected');
     document.getElementById('evalIncorrect').classList.remove('selected');
   } else {
     state.stats.incorrect++;
-    // Auto-bookmark on incorrect
     state.bookmarks.add(q.id);
     document.getElementById('evalIncorrect').classList.add('selected');
     document.getElementById('evalCorrect').classList.remove('selected');
   }
 
+  // Record to history timeline
+  state.history.unshift({
+    id: q.id,
+    number: q.number,
+    chapterName: q.chapterName,
+    result: isCorrect ? 'correct' : 'incorrect',
+    time: timeStr
+  });
+
   if (state.mode === 'test10') {
     state.testResults[state.currentIndex] = isCorrect;
   }
 
-  saveStorage();
+  saveUserData();
   updateStatsDisplay();
 }
 
-// Update Stats in Top Bar
+// Update Stats UI
 function updateStatsDisplay() {
   const answeredEl = document.getElementById('statAnswered');
   const accuracyEl = document.getElementById('statAccuracy');
   const bookmarkCountEl = document.getElementById('statBookmarks');
-  const totalQuestionsEl = document.getElementById('statTotal');
+  const bookmarkTabBadge = document.getElementById('bookmarkTabBadge');
 
   if (answeredEl) answeredEl.textContent = state.stats.answered;
-  if (totalQuestionsEl) totalQuestionsEl.textContent = QUESTIONS_DATA.length;
-  if (bookmarkCountEl) {
-    bookmarkCountEl.textContent = state.bookmarks.size;
-    const bookmarkTabBadge = document.getElementById('bookmarkTabBadge');
-    if (bookmarkTabBadge) bookmarkTabBadge.textContent = state.bookmarks.size;
-  }
+  if (bookmarkCountEl) bookmarkCountEl.textContent = state.bookmarks.size;
+  if (bookmarkTabBadge) bookmarkTabBadge.textContent = state.bookmarks.size;
 
   if (accuracyEl) {
     const total = state.stats.correct + state.stats.incorrect;
@@ -316,7 +428,58 @@ function updateStatsDisplay() {
   }
 }
 
-// Show Test Modal
+// Show History Modal
+function openHistoryModal() {
+  const modal = document.getElementById('historyModal');
+  const container = document.getElementById('historyListContainer');
+  container.innerHTML = '';
+
+  if (!state.history || state.history.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">まだ解答履歴がありません。問題を解いて「解けた」「要復習」を押すとここにタイムラインが記録されます。</div>';
+  } else {
+    state.history.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `
+        <div class="history-item-left">
+          <span class="history-num">${item.number} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${item.chapterName})</span></span>
+          <span class="history-time"><i data-lucide="clock" style="width:0.75rem;height:0.75rem;vertical-align:middle;"></i> ${item.time}</span>
+        </div>
+        <div>
+          <span class="history-badge ${item.result}">
+            ${item.result === 'correct' ? '⭕ 正解' : '❌ 要復習'}
+          </span>
+        </div>
+      `;
+      // Click to jump to question
+      div.style.cursor = 'pointer';
+      div.title = 'クリックでこの問題を表示';
+      div.addEventListener('click', () => {
+        jumpToQuestion(item.id);
+        closeHistoryModal();
+      });
+      container.appendChild(div);
+    });
+  }
+
+  modal.classList.add('visible');
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function closeHistoryModal() {
+  document.getElementById('historyModal').classList.remove('visible');
+}
+
+function jumpToQuestion(qId) {
+  const target = QUESTIONS_DATA.find(q => q.id === qId);
+  if (target) {
+    state.pool = [target];
+    state.currentIndex = 0;
+    renderCurrentQuestion();
+  }
+}
+
+// 10-Question Test Results
 function showTestResult() {
   const modal = document.getElementById('testResultModal');
   const scoreEl = document.getElementById('modalScore');
@@ -338,16 +501,18 @@ function closeTestModal() {
   rebuildPool();
 }
 
-// Reset stats
+// Reset Stats
 function resetStats() {
-  if (confirm('解答履歴・正答率の統計をリセットしますか？（ブックマークは保持されます）')) {
+  const userText = state.currentUser === 'guest' ? 'ゲスト' : `ユーザー「${state.currentUser}」`;
+  if (confirm(`${userText}の学習履歴・正答率の統計をリセットしますか？（ブックマークは保持されます）`)) {
     state.stats = { answered: 0, correct: 0, incorrect: 0 };
-    saveStorage();
+    state.history = [];
+    saveUserData();
     updateStatsDisplay();
   }
 }
 
-// Theme Toggle
+// Theme
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
   const next = current === 'dark' ? 'light' : 'dark';
@@ -355,7 +520,7 @@ function toggleTheme() {
   localStorage.setItem(STORAGE_KEYS.THEME, next);
 }
 
-// Keyboard shortcuts
+// Keyboard
 function handleKeyboard(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
@@ -380,22 +545,28 @@ function handleKeyboard(e) {
   }
 }
 
-// Setup Event Listeners
+// Event Listeners
 function setupEventListeners() {
+  // Navigation
   document.getElementById('answerToggleBtn').addEventListener('click', toggleAnswer);
   document.getElementById('nextBtn').addEventListener('click', nextQuestion);
   document.getElementById('prevBtn').addEventListener('click', prevQuestion);
   document.getElementById('bookmarkBtn').addEventListener('click', toggleBookmark);
 
+  // Self Evaluation
   document.getElementById('evalCorrect').addEventListener('click', () => recordEvaluation(true));
   document.getElementById('evalIncorrect').addEventListener('click', () => recordEvaluation(false));
 
+  // Modals
   document.getElementById('modalCloseBtn').addEventListener('click', closeTestModal);
+  document.getElementById('historyModalBtn').addEventListener('click', openHistoryModal);
+  document.getElementById('historyModalClose').addEventListener('click', closeHistoryModal);
 
+  // Theme & Reset
   document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
   document.getElementById('resetStatsBtn').addEventListener('click', resetStats);
 
-  // Mode Tabs
+  // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -406,7 +577,7 @@ function setupEventListeners() {
     });
   });
 
-  // Chapter Chips
+  // Chapters
   document.querySelectorAll('.chip-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
@@ -418,15 +589,93 @@ function setupEventListeners() {
     });
   });
 
+  // Auth Modal Controls
+  const authModal = document.getElementById('authModal');
+  const authModalBtn = document.getElementById('authModalBtn');
+  const authModalClose = document.getElementById('authModalClose');
+  const tabToLogin = document.getElementById('tabToLogin');
+  const tabToRegister = document.getElementById('tabToRegister');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const authErrorMsg = document.getElementById('authErrorMsg');
+  const logoutBtn = document.getElementById('logoutBtn');
+  let authMode = 'login'; // 'login' or 'register'
+
+  authModalBtn.addEventListener('click', () => {
+    authModal.classList.add('visible');
+    authErrorMsg.textContent = '';
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  authModalClose.addEventListener('click', () => {
+    authModal.classList.remove('visible');
+  });
+
+  tabToLogin.addEventListener('click', () => {
+    authMode = 'login';
+    tabToLogin.classList.add('active');
+    tabToRegister.classList.remove('active');
+    authSubmitBtn.textContent = 'ログイン';
+    authErrorMsg.textContent = '';
+  });
+
+  tabToRegister.addEventListener('click', () => {
+    authMode = 'register';
+    tabToRegister.classList.add('active');
+    tabToLogin.classList.remove('active');
+    authSubmitBtn.textContent = 'アカウント新規登録';
+    authErrorMsg.textContent = '';
+  });
+
+  document.getElementById('authForm').addEventListener('submit', async () => {
+    const user = document.getElementById('authUsername').value.trim();
+    const pass = document.getElementById('authPassword').value;
+    authErrorMsg.textContent = '';
+
+    if (authMode === 'register') {
+      const res = await registerUser(user, pass);
+      if (res.success) {
+        authModal.classList.remove('visible');
+        document.getElementById('authUsername').value = '';
+        document.getElementById('authPassword').value = '';
+        alert(`ユーザー「${user}」を新規登録し、ログインしました！\n進捗はすべてこのアカウントに個別に記録されます。`);
+      } else {
+        authErrorMsg.textContent = res.message;
+      }
+    } else {
+      const res = await loginUser(user, pass);
+      if (res.success) {
+        authModal.classList.remove('visible');
+        document.getElementById('authUsername').value = '';
+        document.getElementById('authPassword').value = '';
+      } else {
+        authErrorMsg.textContent = res.message;
+      }
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    logoutUser();
+    authModal.classList.remove('visible');
+    alert('ログアウトしました（ゲスト利用に戻りました）。');
+  });
+
   // Keyboard
   window.addEventListener('keydown', handleKeyboard);
 }
 
-// Initialization on DOM ready
+// Init
 document.addEventListener('DOMContentLoaded', () => {
-  loadStorage();
+  const savedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || 'guest';
+  state.currentUser = savedUser;
+
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
+  loadUserData();
   setupEventListeners();
+  updateAuthUI();
   rebuildPool();
+
   if (window.lucide) {
     window.lucide.createIcons();
   }

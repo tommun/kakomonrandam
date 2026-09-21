@@ -29,15 +29,37 @@
         </div>
       </div>
       <div class="header-actions">
-        <button id="resetStatsBtn" class="btn-icon" title="学習履歴をリセット">
+        <!-- User Account Badge / Button -->
+        <button id="authModalBtn" class="btn-auth" title="アカウント管理">
+          <i data-lucide="user"></i>
+          <span id="authBtnText">ログイン / 登録</span>
+        </button>
+
+        <!-- History Log Button -->
+        <button id="historyModalBtn" class="btn-icon" title="解答履歴タイムライン">
+          <i data-lucide="history"></i>
+        </button>
+
+        <!-- Reset Stats Button -->
+        <button id="resetStatsBtn" class="btn-icon" title="現在の統計をリセット">
           <i data-lucide="rotate-ccw"></i>
         </button>
+
+        <!-- Dark Mode Toggle -->
         <button id="themeToggleBtn" class="btn-icon" title="ダークモード切替">
           <i data-lucide="moon"></i>
         </button>
       </div>
     </div>
   </header>
+
+  <!-- Notice Banner: Independent Storage Info -->
+  <div class="privacy-banner">
+    <div class="privacy-container">
+      <i data-lucide="shield-check"></i>
+      <span>進捗や履歴はお使いの端末・ブラウザ内に個別に安全保存されます。URLを友人に共有しても、あなたの進捗が相手に見られることはありません。</span>
+    </div>
+  </div>
 
   <!-- Main Content -->
   <main class="main-content">
@@ -96,8 +118,8 @@
     <!-- Stats Bar -->
     <section class="status-bar">
       <div class="stat-box">
-        <span class="stat-title">総問題数</span>
-        <span id="statTotal" class="stat-value">102</span>
+        <span class="stat-title">ユーザー</span>
+        <span id="statCurrentUser" class="stat-value user-name-display">ゲスト</span>
       </div>
       <div class="stat-box">
         <span class="stat-title">解答回数</span>
@@ -195,6 +217,63 @@
 
   </main>
 
+  <!-- Auth Modal (Login / Register) -->
+  <div id="authModal" class="modal-backdrop">
+    <div class="modal-card auth-card">
+      <div class="modal-header">
+        <h3 id="authModalTitle">アカウントで学習を記録</h3>
+        <button id="authModalClose" class="btn-close"><i data-lucide="x"></i></button>
+      </div>
+      
+      <p class="auth-desc">
+        ユーザー名とパスワードのみで登録可能です（メールアドレス不要）。<br>
+        1台のPCを複数人で使う場合でも、アカウントごとに学習進捗が完全に分離して記録されます。
+      </p>
+
+      <div class="auth-tabs">
+        <button id="tabToLogin" class="auth-tab active">ログイン</button>
+        <button id="tabToRegister" class="auth-tab">新規登録</button>
+      </div>
+
+      <form id="authForm" onsubmit="return false;">
+        <div class="form-group">
+          <label for="authUsername">ユーザー名</label>
+          <input type="text" id="authUsername" placeholder="例: yamada" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="authPassword">パスワード</label>
+          <input type="password" id="authPassword" placeholder="パスワードを入力" required autocomplete="current-password">
+        </div>
+        <div id="authErrorMsg" class="auth-error"></div>
+        <button type="submit" id="authSubmitBtn" class="nav-btn primary" style="width:100%; justify-content:center; margin-top:0.5rem;">
+          ログイン
+        </button>
+      </form>
+
+      <div id="logoutSection" style="display:none; flex-direction:column; gap:0.75rem;">
+        <div style="font-size:0.95rem; color:var(--text-primary);">
+          現在 <strong><span id="loggedUserName"></span></strong> としてログイン中
+        </div>
+        <button id="logoutBtn" class="nav-btn" style="width:100%; justify-content:center; color:var(--danger-color); border-color:var(--danger-color);">
+          <i data-lucide="log-out"></i> ログアウト（ゲストに戻る）
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Log Modal -->
+  <div id="historyModal" class="modal-backdrop">
+    <div class="modal-card history-card">
+      <div class="modal-header">
+        <h3><i data-lucide="history"></i> 解答履歴タイムライン</h3>
+        <button id="historyModalClose" class="btn-close"><i data-lucide="x"></i></button>
+      </div>
+      <div id="historyListContainer" class="history-list">
+        <!-- History items injected via JS -->
+      </div>
+    </div>
+  </div>
+
   <!-- 10-Question Test Result Modal -->
   <div id="testResultModal" class="modal-backdrop">
     <div class="modal-card">
@@ -213,7 +292,7 @@
 
   <!-- Footer -->
   <footer class="app-footer">
-    <p>数理演習 クイズシステム &copy; 2026 | 全62項目 102問収録</p>
+    <p>数理演習 クイズシステム &copy; 2026 | 全62項目 102問収録 | ブラウザ内ローカル保存対応</p>
   </footer>
 
   <!-- Scripts -->
