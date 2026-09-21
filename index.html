@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>??????? ??????????</title>
+  <title>数学・数理演習 ランダム出題システム</title>
 
   <!-- KaTeX for Beautiful Math Rendering -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -22,17 +22,17 @@
   <header class="app-header">
     <div class="header-container">
       <div class="logo-area">
-        <div class="logo-icon">?</div>
+        <div class="logo-icon">Σ</div>
         <div class="logo-title">
-          <h1>???? ??????????</h1>
-          <p>????????????????????????? (?102?)</p>
+          <h1>数理演習 ランダム出題システム</h1>
+          <p>線形計画・数列・行列・関数・確率・推移行列・微積分 (全102問)</p>
         </div>
       </div>
       <div class="header-actions">
-        <button id="resetStatsBtn" class="btn-icon" title="?????????">
+        <button id="resetStatsBtn" class="btn-icon" title="学習履歴をリセット">
           <i data-lucide="rotate-ccw"></i>
         </button>
-        <button id="themeToggleBtn" class="btn-icon" title="????????">
+        <button id="themeToggleBtn" class="btn-icon" title="ダークモード切替">
           <i data-lucide="moon"></i>
         </button>
       </div>
@@ -45,13 +45,13 @@
     <!-- Mode Selector Tabs -->
     <nav class="mode-tabs">
       <button class="tab-btn active" data-mode="infinite">
-        <i data-lucide="shuffle"></i> ??????
+        <i data-lucide="shuffle"></i> ランダム演習
       </button>
       <button class="tab-btn" data-mode="test10">
-        <i data-lucide="award"></i> 10??????
+        <i data-lucide="award"></i> 10問チャレンジ
       </button>
       <button class="tab-btn" data-mode="bookmarks">
-        <i data-lucide="bookmark"></i> ??????
+        <i data-lucide="bookmark"></i> 要復習リスト
         <span id="bookmarkTabBadge" class="tab-badge">0</span>
       </button>
     </nav>
@@ -59,36 +59,36 @@
     <!-- Chapter Filters -->
     <section class="filter-wrapper">
       <div class="filter-label">
-        <span>???????</span>
-        <span style="font-size: 0.75rem;">?????????</span>
+        <span>出題分野を選択</span>
+        <span style="font-size: 0.75rem;">※タップで絞り込み</span>
       </div>
       <div class="chips-scroll">
         <button class="chip-btn active" data-chapter="all">
-          ??? <span class="chip-count">(102)</span>
+          全分野 <span class="chip-count">(102)</span>
         </button>
         <button class="chip-btn" data-chapter="1">
-          ?1?: ??????? <span class="chip-count">(6)</span>
+          第1章: 線形計画・領域 <span class="chip-count">(6)</span>
         </button>
         <button class="chip-btn" data-chapter="2">
-          ?2?: ??????? <span class="chip-count">(22)</span>
+          第2章: 数列・Σ・極限 <span class="chip-count">(22)</span>
         </button>
         <button class="chip-btn" data-chapter="3">
-          ?3?: ????????? <span class="chip-count">(8)</span>
+          第3章: 行列・ネットワーク <span class="chip-count">(8)</span>
         </button>
         <button class="chip-btn" data-chapter="4">
-          ?4?: ??????? <span class="chip-count">(22)</span>
+          第4章: 指数対数・関数 <span class="chip-count">(22)</span>
         </button>
         <button class="chip-btn" data-chapter="5">
-          ?5?: ????????? <span class="chip-count">(10)</span>
+          第5章: 確率・ベイズの定理 <span class="chip-count">(10)</span>
         </button>
         <button class="chip-btn" data-chapter="6">
-          ?6?: ???????? <span class="chip-count">(10)</span>
+          第6章: 推移行列・固有値 <span class="chip-count">(10)</span>
         </button>
         <button class="chip-btn" data-chapter="7">
-          ?7?: ???????? <span class="chip-count">(18)</span>
+          第7章: 微積分とその応用 <span class="chip-count">(18)</span>
         </button>
         <button class="chip-btn" data-chapter="8">
-          ?8?: ????????? <span class="chip-count">(6)</span>
+          第8章: 多変数関数・偏微分 <span class="chip-count">(6)</span>
         </button>
       </div>
     </section>
@@ -96,19 +96,19 @@
     <!-- Stats Bar -->
     <section class="status-bar">
       <div class="stat-box">
-        <span class="stat-title">????</span>
+        <span class="stat-title">総問題数</span>
         <span id="statTotal" class="stat-value">102</span>
       </div>
       <div class="stat-box">
-        <span class="stat-title">????</span>
+        <span class="stat-title">解答回数</span>
         <span id="statAnswered" class="stat-value">0</span>
       </div>
       <div class="stat-box">
-        <span class="stat-title">???</span>
+        <span class="stat-title">正答率</span>
         <span id="statAccuracy" class="stat-value">0%</span>
       </div>
       <div class="stat-box">
-        <span class="stat-title">??????</span>
+        <span class="stat-title">要復習マーク</span>
         <span id="statBookmarks" class="stat-value">0</span>
       </div>
     </section>
@@ -118,11 +118,11 @@
       <!-- Card Header -->
       <div class="card-header">
         <div class="card-tags">
-          <span id="badgeNumber" class="badge-number">?? 1.1</span>
-          <span id="badgeChapter" class="badge-chapter">?1??????????</span>
+          <span id="badgeNumber" class="badge-number">演習 1.1</span>
+          <span id="badgeChapter" class="badge-chapter">第1章：線形計画法と領域</span>
         </div>
         <div class="card-tools">
-          <button id="bookmarkBtn" class="bookmark-btn" title="????????????? (B)">
+          <button id="bookmarkBtn" class="bookmark-btn" title="要復習・ブックマークに追加 (B)">
             <i data-lucide="bookmark"></i>
           </button>
         </div>
@@ -135,13 +135,13 @@
 
       <!-- Answer Toggle Button -->
       <button id="answerToggleBtn" class="answer-toggle-btn">
-        <i data-lucide="eye"></i> ??????? <span style="font-size:0.75rem;opacity:0.7;">(Space)</span>
+        <i data-lucide="eye"></i> 解答を表示する <span style="font-size:0.75rem;opacity:0.7;">(Space)</span>
       </button>
 
       <!-- Answer Container (Hidden by default) -->
       <div id="answerContainer" class="answer-container">
         <div class="answer-title">
-          <i data-lucide="check-circle-2"></i> ?????
+          <i data-lucide="check-circle-2"></i> 解答・解説
         </div>
         <div id="answerText" class="answer-body">
           <!-- Injected via JavaScript -->
@@ -150,13 +150,13 @@
 
       <!-- Self Evaluation Area -->
       <div id="evalArea" class="evaluation-area">
-        <span class="evaluation-label">????????????</span>
+        <span class="evaluation-label">理解度を記録してください</span>
         <div class="evaluation-buttons">
           <button id="evalCorrect" class="eval-btn correct">
-            <i data-lucide="check"></i> ????????? <kbd>1</kbd>
+            <i data-lucide="check"></i> 解けた・理解できた <kbd>1</kbd>
           </button>
           <button id="evalIncorrect" class="eval-btn incorrect">
-            <i data-lucide="x"></i> ?????????? <kbd>2</kbd>
+            <i data-lucide="x"></i> 解けなかった・要復習 <kbd>2</kbd>
           </button>
         </div>
       </div>
@@ -164,11 +164,11 @@
       <!-- Navigation Footer -->
       <div class="card-nav">
         <button id="prevBtn" class="nav-btn">
-          <i data-lucide="chevron-left"></i> ????
+          <i data-lucide="chevron-left"></i> 前の問題
         </button>
         <span id="cardCounter" class="counter-text">1 / 102</span>
         <button id="nextBtn" class="nav-btn primary">
-          ???? <i data-lucide="chevron-right"></i>
+          次の問題 <i data-lucide="chevron-right"></i>
         </button>
       </div>
     </article>
@@ -176,21 +176,21 @@
     <!-- Empty State (e.g., Bookmark mode is empty) -->
     <div id="emptyState" class="empty-state">
       <i data-lucide="inbox" class="empty-icon"></i>
-      <h3>????????????</h3>
+      <h3>該当する問題がありません</h3>
       <p style="color: var(--text-muted); font-size: 0.9rem;">
-        ???????????????????????????????????<br>
-        ??????????????????????????????????????????
+        ブックマークされた問題がないか、条件に合う問題が見つかりませんでした。<br>
+        「ランダム演習」モードで気になる問題の右上のしおりマークを押すとここに追加されます。
       </p>
     </div>
 
     <!-- Shortcut Legend -->
     <div class="shortcut-legend">
-      <div class="shortcut-item"><kbd>Space</kbd> ?????/???</div>
-      <div class="shortcut-item"><kbd>Enter</kbd> / <kbd>?</kbd> ????</div>
-      <div class="shortcut-item"><kbd>?</kbd> ????</div>
-      <div class="shortcut-item"><kbd>1</kbd> ???</div>
-      <div class="shortcut-item"><kbd>2</kbd> ???</div>
-      <div class="shortcut-item"><kbd>B</kbd> ????????</div>
+      <div class="shortcut-item"><kbd>Space</kbd> 解答の表示/非表示</div>
+      <div class="shortcut-item"><kbd>Enter</kbd> / <kbd>→</kbd> 次の問題</div>
+      <div class="shortcut-item"><kbd>←</kbd> 前の問題</div>
+      <div class="shortcut-item"><kbd>1</kbd> 解けた</div>
+      <div class="shortcut-item"><kbd>2</kbd> 要復習</div>
+      <div class="shortcut-item"><kbd>B</kbd> ブックマーク切替</div>
     </div>
 
   </main>
@@ -199,21 +199,21 @@
   <div id="testResultModal" class="modal-backdrop">
     <div class="modal-card">
       <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
-        10?????? ???
+        10問チャレンジ 完了！
       </div>
       <div id="modalScore" class="modal-score">8 / 10</div>
       <p id="modalText" style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
         <!-- Injected via JavaScript -->
       </p>
       <button id="modalCloseBtn" class="nav-btn primary" style="justify-content: center; width: 100%;">
-        ????????
+        もう一度挑戦する
       </button>
     </div>
   </div>
 
   <!-- Footer -->
   <footer class="app-footer">
-    <p>???? ??????? &copy; 2026 | ?62?? 102???</p>
+    <p>数理演習 クイズシステム &copy; 2026 | 全62項目 102問収録</p>
   </footer>
 
   <!-- Scripts -->
