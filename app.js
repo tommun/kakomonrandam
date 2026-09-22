@@ -414,6 +414,19 @@ function autoAnnotateMath(text) {
   if (!text) return '';
   let str = text;
 
+  // 小問マーカーの改行フォーマット (1), (2)... や ①, ②...
+  // 1. (1)〜(10) の前で改行（直前が英字 f(1) などの関数呼び出しではない場合）
+  str = str.replace(/([^\n])(\([0-9]{1,2}\))/g, (match, p1, p2) => {
+    if (/[a-zA-Z]/.test(p1)) return match;
+    return p1 + '\n' + p2;
+  });
+
+  // 2. ①〜⑩ の前で改行
+  str = str.replace(/([^\n])([①-⑩])/g, '$1\n$2');
+
+  // 3. 句点・コロン・空白に続く (ア)〜(オ) や (a)〜(e) の前で改行
+  str = str.replace(/([。：\s])(\([ア-ンa-e]\))/g, '$1\n$2');
+
   // Σ
   str = str.replace(/Σ_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\sum_{$1}^{$2}$');
   str = str.replace(/Σ_\{([^}]+)\}/g, '$\\sum_{$1}$');
@@ -426,7 +439,7 @@ function autoAnnotateMath(text) {
   str = str.replace(/∫_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\int_{$1}^{$2}$');
   str = str.replace(/∫/g, '$\\int$');
 
-  // 改行
+  // 改行を <br> に変換
   str = str.replace(/\n/g, '<br>');
 
   return str;
