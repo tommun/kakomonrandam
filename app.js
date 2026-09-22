@@ -565,6 +565,19 @@ function renderCurrentQuestion() {
   answerEl.innerHTML = autoAnnotateMath(q.answer);
   renderEquationsInElement(answerEl);
 
+  // Render Answer Image if available
+  const ansImgContainer = document.getElementById('answerImageContainer');
+  const ansImgEl = document.getElementById('answerImage');
+  if (ansImgContainer && ansImgEl) {
+    if (q.answerImageUrl) {
+      ansImgContainer.style.display = 'flex';
+      ansImgEl.src = q.answerImageUrl;
+    } else {
+      ansImgContainer.style.display = 'none';
+      ansImgEl.src = '';
+    }
+  }
+
   state.isAnswerVisible = false;
   answerContainer.classList.remove('visible');
   evalArea.classList.remove('visible');
@@ -1020,15 +1033,25 @@ function setupEventListeners() {
 
   // Lightbox modal controls
   const imgEl = document.getElementById('questionImage');
+  const ansImgEl = document.getElementById('answerImage');
   const lightboxModal = document.getElementById('imageLightboxModal');
   const lightboxImg = document.getElementById('lightboxImg');
   const closeLightboxBtn = document.getElementById('closeLightboxBtn');
 
-  if (imgEl && lightboxModal) {
-    imgEl.addEventListener('click', () => {
-      lightboxImg.src = imgEl.src;
-      lightboxModal.classList.add('visible');
-    });
+  if (lightboxModal) {
+    if (imgEl) {
+      imgEl.addEventListener('click', () => {
+        lightboxImg.src = imgEl.src;
+        lightboxModal.classList.add('visible');
+      });
+    }
+
+    if (ansImgEl) {
+      ansImgEl.addEventListener('click', () => {
+        lightboxImg.src = ansImgEl.src;
+        lightboxModal.classList.add('visible');
+      });
+    }
 
     closeLightboxBtn.addEventListener('click', () => {
       lightboxModal.classList.remove('visible');
