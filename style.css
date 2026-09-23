@@ -1134,24 +1134,13 @@ kbd {
   overflow-x: auto !important;
   overflow-y: hidden !important;
   -webkit-overflow-scrolling: touch !important;
-  padding: 0.4rem 0.25rem !important;
+  padding: 0.5rem 0.25rem !important;
   scrollbar-width: thin;
 }
 
 .katex-display > .katex {
   max-width: 100% !important;
   text-align: center;
-  white-space: nowrap !important;
-}
-
-.katex {
-  white-space: nowrap !important;
-  text-indent: 0 !important;
-  font-size: 1.05em;
-}
-
-.katex-html {
-  white-space: nowrap !important;
 }
 
 /* Matrix & Vector Spacing */
@@ -1161,7 +1150,7 @@ kbd {
 
 /* KaTeX Horizontal Scrollbar Style */
 .katex-display::-webkit-scrollbar {
-  height: 5px;
+  height: 4px;
 }
 .katex-display::-webkit-scrollbar-track {
   background: var(--bg-subtle);
@@ -1170,13 +1159,13 @@ kbd {
 .katex-display::-webkit-scrollbar-thumb {
   background: var(--accent-primary);
   border-radius: 4px;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* Mobile Screens (Under 640px) */
 @media (max-width: 640px) {
   .question-body {
-    padding: 1rem 0.9rem;
+    padding: 1rem 0.85rem;
     font-size: 0.98rem;
     line-height: 1.75;
   }
@@ -1189,30 +1178,24 @@ kbd {
 
   /* Compact math formulas to prevent overflow where possible */
   .katex {
-    font-size: 0.92em !important;
+    font-size: 0.94em !important;
   }
 
   .katex-display {
-    font-size: 0.94em !important;
-    margin: 0.6rem 0 !important;
+    font-size: 0.92em !important;
+    margin: 0.5rem 0 !important;
     padding: 0.35rem 0.1rem !important;
   }
 
   /* Make vectors and matrices fit better horizontally on phones */
   .katex .arraycolsep {
-    width: 0.25em !important;
-  }
-
-  .katex .delimsizing.size1,
-  .katex .delimsizing.size2,
-  .katex .delimsizing.size3,
-  .katex .delimsizing.size4 {
-    vertical-align: middle;
+    width: 0.2em !important;
   }
 
   .quiz-figure-img {
-    max-height: 300px;
-    width: 100%;
+    max-height: 320px;
+    max-width: 100%;
+    width: auto;
     object-fit: contain;
   }
 }

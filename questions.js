@@ -602,8 +602,8 @@ var QUESTIONS_DATA = [
     "number": "演習 6.1",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "シカの移動（毎年Aの10%がBへ、Bの20%がAへ）。現在密度A:18.6, B:7.4。推移行列を用いて1, 2, 3年後の生息密度を求めよ。",
-    "answer": "推移行列 P = [[0.9, 0.2], [0.1, 0.8]]。1年後: A 18.2, B 7.82年後: A 17.9, B 8.13年後: A 17.7, B 8.3 (頭/km^2)",
+    "question": "シカの移動（毎年Aの10%がBへ、Bの20%がAへ）。現在密度 A: 18.6, B: 7.4 (頭/km^2)。推移行列を用いて 1, 2, 3年後の生息密度を求めよ。",
+    "answer": "推移行列 $P = \\begin{pmatrix} 0.9 & 0.2 \\\\ 0.1 & 0.8 \\end{pmatrix}$\n\n1年後: A 18.2, B 7.8\n2年後: A 17.9, B 8.1\n3年後: A 17.7, B 8.3 (頭/km^2)",
     "groupId": "group_deer_migration",
     "groupName": "シカの移動推移行列（未来と過去）",
     "groupOrder": 1,
@@ -614,29 +614,29 @@ var QUESTIONS_DATA = [
     "number": "演習 6.2",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "演習6.1のシカの移動について、過去への推移行列Qをつくり、1年前、2年前の生息密度を求めよ。",
-    "answer": "(1) a = (8/7)x - (2/7)y, b = (-1/7)x + (9/7)y Q = [[8/7, -2/7], [-1/7, 9/7]]\n(3)(4) QP = E の確認。\n(5) 1年前: A 19.1, B 6.9 / 2年前: A 19.9, B 6.1 (頭/km^2)",
+    "question": "演習6.1のシカの移動について、過去への推移行列 $Q$ をつくり、1年前、2年前の生息密度を求めよ。",
+    "answer": "(1) $a = \\frac{8}{7}x - \\frac{2}{7}y, \\; b = -\\frac{1}{7}x + \\frac{9}{7}y$\n\n(2) $Q = \\begin{pmatrix} 8/7 & -2/7 \\\\ -1/7 & 9/7 \\end{pmatrix}$\n\n(3)(4) $QP = E$ の確認。\n\n(5) 1年前: A 19.1, B 6.9 / 2年前: A 19.9, B 6.1 (頭/km^2)",
     "groupId": "group_deer_migration",
     "groupName": "シカの移動推移行列（未来と過去）",
     "groupOrder": 2,
     "groupTotal": 2,
-    "parentContext": "【前提（演習 6.1）】毎年Aの10%がBへ、Bの20%がAへ移動。現在密度 A: 18.6, B: 7.4 (頭/km^2)。推移行列 P = [[0.9, 0.2], [0.1, 0.8]]。"
+    "parentContext": "【前提（演習 6.1）】毎年Aの10%がBへ、Bの20%がAへ移動。現在密度 A: 18.6, B: 7.4 (頭/km^2)。推移行列 $P = \\begin{pmatrix} 0.9 & 0.2 \\\\ 0.1 & 0.8 \\end{pmatrix}$。"
   },
   {
     "id": 71,
     "number": "演習 6.3",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "オオタカの世代間推移行列 P = [[0.333, 0.730], [0.167, 0.857]]。現在亜成鳥100羽、成鳥90羽。\n(1)P作成 \n(2)1,2,3年後 \n(3)P^-1 \n(4)1,2年前の個体数。",
-    "answer": "(1) 推移行列 P の作成。\n(2) 1年後: 亜成鳥99羽,成鳥94羽 / 2年後: 亜成鳥101羽,成鳥97羽 / 3年後: 亜成鳥105羽,成鳥100羽\n(3) P^-1 の計算。\n(4) 過去の個体数の復元。"
+    "question": "オオタカの世代間推移行列 $P = \\begin{pmatrix} 0.333 & 0.730 \\\\ 0.167 & 0.857 \\end{pmatrix}$。現在亜成鳥100羽、成鳥90羽。\n\n(1) $P$ 作成\n(2) 1, 2, 3年後\n(3) $P^{-1}$\n(4) 1, 2年前の個体数。",
+    "answer": "(1) 推移行列 $P$ の作成。\n(2) 1年後: 亜成鳥99羽, 成鳥94羽 / 2年後: 亜成鳥101羽, 成鳥97羽 / 3年後: 亜成鳥105羽, 成鳥100羽\n(3) $P^{-1}$ の計算。\n(4) 過去の個体数の復元。"
   },
   {
     "id": 72,
     "number": "演習 6.4",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "レンタルサイクルの台数推移について、(x,y) = (220,180), (150,50), (60,180), (100,230) の各点から (120,180) に収束することを確認せよ。",
-    "answer": "推移行列 P = [[0.7, 0.2], [0.3, 0.8]] を繰り返し適用すると、すべての初期状態から定常状態 (120, 180) に収束する。",
+    "question": "レンタルサイクルの台数推移について、$(x, y) = (220, 180), (150, 50), (60, 180), (100, 230)$ の各点から $(120, 180)$ に収束することを確認せよ。",
+    "answer": "推移行列 $P = \\begin{pmatrix} 0.7 & 0.2 \\\\ 0.3 & 0.8 \\end{pmatrix}$ を繰り返し適用すると、すべての初期状態から定常状態 $(120, 180)$ に収束する。",
     "groupId": "group_rental_cycle",
     "groupName": "レンタルサイクルの推移と固有ベクトル",
     "groupOrder": 1,
@@ -649,31 +649,32 @@ var QUESTIONS_DATA = [
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
     "question": "レンタルサイクルで正門脇200台、講義棟前200台（合計400台）から始めた場合の定常状態を固有ベクトルで求めよ。",
-    "answer": "[200, 200]^T = [160, 240]^T + [40, -40]^T。固有値0.5の成分 [40, -40]^T が減衰し、正門脇 160台、講義棟前 240台に近づく。",
+    "answer": "$$\\begin{pmatrix} 200 \\\\ 200 \\end{pmatrix} = \\begin{pmatrix} 160 \\\\ 240 \\end{pmatrix} + \\begin{pmatrix} 40 \\\\ -40 \\end{pmatrix}$$\n固有値 0.5 の成分 $\\begin{pmatrix} 40 \\\\ -40 \\end{pmatrix}$ が減衰し、正門脇 160台、講義棟前 240台に近づく。",
     "groupId": "group_rental_cycle",
     "groupName": "レンタルサイクルの推移と固有ベクトル",
     "groupOrder": 2,
     "groupTotal": 2,
-    "parentContext": "【前提（演習 6.4）】正門脇と講義棟前のレンタルサイクル台数推移。推移行列 P = [[0.7, 0.2], [0.3, 0.8]]。"
+    "parentContext": "【前提（演習 6.4）】正門脇と講義棟前のレンタルサイクル台数推移。推移行列 $P = \\begin{pmatrix} 0.7 & 0.2 \\\\ 0.3 & 0.8 \\end{pmatrix}$。"
   },
   {
     "id": 74,
     "number": "演習 6.6",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "X町のアーケード街の繁盛状況を調べるため、170ある店舗スペースへの入居状況を数年間にわたって調べたところ、営業中の店舗数と空き店舗数について、年ごとの推移が図の表のように得られた。\n\n(1) 営業中の店舗数と空き店舗数をベクトル $\\begin{pmatrix} \\text{営業中の店舗数} \\\\ \\text{空き店舗数} \\end{pmatrix}$ で表すとき、営業中の店舗数と空き店舗数の推移を表す推移行列 $P$ を求めよう。\n(2) $\\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix}$ が $P$ の固有値 1 の固有ベクトル、$\\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$ が $P$ の固有値 0.15 の固有ベクトルであることを確かめてみよう。\n(3) ある年の営業中の店舗数が 100、空き店舗数が 70 であるとき、このアーケード街の営業中の店舗数と空き店舗数は、長い年数が経った後、どのようになると予想されるか、固有値、固有ベクトルを使って説明してみよう。",
-    "answer": "(1) 推移行列 $P$:\n$$P = \\begin{pmatrix} 0.85 & 0.70 \\\\ 0.15 & 0.30 \\end{pmatrix}$$\n\n(2) 固有値・固有ベクトルの確認:\n$$P \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = \\begin{pmatrix} 0.85 \\times 14 + 0.70 \\times 3 \\\\ 0.15 \\times 14 + 0.30 \\times 3 \\end{pmatrix} = \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = 1 \\cdot \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix}$$\n$$P \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix} = \\begin{pmatrix} 0.85 \\times (-1) + 0.70 \\times 1 \\\\ 0.15 \\times (-1) + 0.30 \\times 1 \\end{pmatrix} = \\begin{pmatrix} -0.15 \\\\ 0.15 \\end{pmatrix} = 0.15 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nより、それぞれ固有値 1, 0.15 の固有ベクトルであることが確かめられる。\n\n(3) 長期的な推移:\n初年のベクトルは\n$$\\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} = 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} + 40 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nと表せるから、$n$ 年後は\n$$P^n \\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} = 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} + 0.15^n \\cdot 40 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\n$n$ を大きくすると $0.15^n \\to 0$ となるので、$P^n \\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix}$ は $10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = \\begin{pmatrix} 140 \\\\ 30 \\end{pmatrix}$ に近づく。\nよって、営業中の店舗数と空き店舗数は、それぞれ 140 と 30 に近づいていく。",
+    "question": "X町のアーケード街の繁盛状況を調べるため、170ある店舗スペースへの入居状況を数年間にわたって調べたところ、営業中の店舗数と空き店舗数について、年ごとの推移が図の表のように得られた。\n\n(1) 営業中の店舗数と空き店舗数をベクトル\n$$\\begin{pmatrix} \\text{営業中の店舗数} \\\\ \\text{空き店舗数} \\end{pmatrix}$$\nで表すとき、営業中の店舗数と空き店舗数の推移を表す推移行列 $P$ を求めよう。\n\n(2) ベクトル\n$$\\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix}$$\nが $P$ の固有値 1 の固有ベクトル、および\n$$\\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nが $P$ の固有値 0.15 の固有ベクトルであることを確かめてみよう。\n\n(3) ある年の営業中の店舗数が 100、空き店舗数が 70 であるとき、このアーケード街の営業中の店舗数と空き店舗数は、長い年数が経った後、どのようになると予想されるか、固有値、固有ベクトルを使って説明してみよう。",
+    "answer": "(1) 推移行列 $P$:\n$$P = \\begin{pmatrix} 0.85 & 0.70 \\\\ 0.15 & 0.30 \\end{pmatrix}$$\n\n(2) 固有値・固有ベクトルの確認:\n$$\\begin{aligned}\nP \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} &= \\begin{pmatrix} 0.85 \\times 14 + 0.70 \\times 3 \\\\ 0.15 \\times 14 + 0.30 \\times 3 \\end{pmatrix} \\\\\n&= \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = 1 \\cdot \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix}\n\\end{aligned}$$\n\n$$\\begin{aligned}\nP \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix} &= \\begin{pmatrix} 0.85 \\times (-1) + 0.70 \\times 1 \\\\ 0.15 \\times (-1) + 0.30 \\times 1 \\end{pmatrix} \\\\\n&= \\begin{pmatrix} -0.15 \\\\ 0.15 \\end{pmatrix} = 0.15 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}\n\\end{aligned}$$\nより、それぞれ固有値 1, 0.15 の固有ベクトルであることが確かめられる。\n\n(3) 長期的な推移:\n初年のベクトルは\n$$\\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} = 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} + 40 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nと表せるから、$n$ 年後は\n$$P^n \\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} = 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} + 0.15^n \\cdot 40 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\n$n$ を大きくすると $0.15^n \\to 0$ となるので、\n$$P^n \\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} \\to 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = \\begin{pmatrix} 140 \\\\ 30 \\end{pmatrix}$$\nに近づく。\nよって、営業中の店舗数と空き店舗数は、それぞれ 140 と 30 に近づいていく。",
     "imageUrl": "images/fig_6_6.png",
-    "answerImageUrl": "images/ans_fig_6_6.png"
+    "answerImageUrl": "images/math_6_6.svg"
   },
   {
     "id": 75,
     "number": "演習 6.7",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "ある調査によると、生活目標（日々の生活で何を重視しているか）が「現在中心」（現在の生活の快適さを重視）の人と「未来中心」（将来の豊かさを重視）の人の割合の5年ごとの変化が図の表のように報告されている。\n\n(1) 調査した年における現在中心と未来中心の人の割合をベクトル $\\begin{pmatrix} \\text{現在中心} \\\\ \\text{未来中心} \\end{pmatrix}$ で表すとき、5年ごとの変化を表す推移行列 $P$ が $P = \\begin{pmatrix} 0.865 & 0.365 \\\\ 0.135 & 0.635 \\end{pmatrix}$ で与えられることを確かめてみよう。\n(2) $\\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}$ が $P$ の固有値 1 の固有ベクトル、$\\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$ が $P$ の固有値 0.5 の固有ベクトルであることを確かめてみよう。\n(3) 今後の変化も上の推移行列 $P$ にしたがうとすると、将来的に現在中心と未来中心の人の割合はどのようになると予想されるか、固有値、固有ベクトルを使って説明してみよう。",
-    "answer": "(1) 略（表の値から比率を計算し推移行列が一致することを確かめる）\n\n(2) 固有値・固有ベクトルの確認:\n$$P \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} = 1 \\cdot \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}, \\quad P \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix} = 0.5 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nより一致する。\n\n(3) 将来予測:\n2003年のベクトルは\n$$\\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} = \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} + 8 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nと表せるから、2003年の $5n$ 年後は\n$$P^n \\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} = \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} + 0.5^n \\cdot 8 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\n$n$ を大きくすると $0.5^n \\to 0$ に近づくので、$P^n \\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix}$ は $\\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}$ に近づく。\nよって、現在中心の人と未来中心の人の割合は、それぞれ 73%、27% に近づく。",
-    "imageUrl": "images/fig_6_7.png"
+    "question": "ある調査によると、生活目標（日々の生活で何を重視しているか）が「現在中心」（現在の生活の快適さを重視）の人と「未来中心」（将来の豊かさを重視）の人の割合の5年ごとの変化が図の表のように報告されている。\n\n(1) 調査した年における現在中心と未来中心の人の割合をベクトル\n$$\\begin{pmatrix} \\text{現在中心} \\\\ \\text{未来中心} \\end{pmatrix}$$\nで表すとき、5年ごとの変化を表す推移行列 $P$ が\n$$P = \\begin{pmatrix} 0.865 & 0.365 \\\\ 0.135 & 0.635 \\end{pmatrix}$$\nで与えられることを確かめてみよう。\n\n(2) ベクトル\n$$\\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}$$\nが $P$ の固有値 1 の固有ベクトル、および\n$$\\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nが $P$ の固有値 0.5 の固有ベクトルであることを確かめてみよう。\n\n(3) 今後の変化も上の推移行列 $P$ にしたがうとすると、将来的に現在中心と未来中心の人の割合はどのようになると予想されるか、固有値、固有ベクトルを使って説明してみよう。",
+    "answer": "(1) 推移行列 $P$:\n$$P = \\begin{pmatrix} 0.865 & 0.365 \\\\ 0.135 & 0.635 \\end{pmatrix}$$\n\n(2) 固有値・固有ベクトルの確認:\n$$\\begin{aligned}\nP \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} &= \\begin{pmatrix} 0.865 \\times 73 + 0.365 \\times 27 \\\\ 0.135 \\times 73 + 0.635 \\times 27 \\end{pmatrix} \\\\\n&= \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} = 1 \\cdot \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}\n\\end{aligned}$$\n\n$$\\begin{aligned}\nP \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix} &= \\begin{pmatrix} 0.865 \\times (-1) + 0.365 \\times 1 \\\\ 0.135 \\times (-1) + 0.635 \\times 1 \\end{pmatrix} \\\\\n&= \\begin{pmatrix} -0.5 \\\\ 0.5 \\end{pmatrix} = 0.5 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}\n\\end{aligned}$$\nより、それぞれ固有値 1, 0.5 の固有ベクトルであることが確かめられる。\n\n(3) 将来予測:\n2003年のベクトルは\n$$\\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} = \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} + 8 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nと表せるから、2003年の $5n$ 年後は\n$$P^n \\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} = \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} + 0.5^n \\cdot 8 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\n$n$ を大きくすると $0.5^n \\to 0$ に近づくので、\n$$P^n \\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} \\to \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}$$\nに近づく。\nよって、現在中心の人と未来中心の人の割合は、それぞれ 73%、27% に近づく。",
+    "imageUrl": "images/fig_6_7.png",
+    "answerImageUrl": "images/math_6_7.svg"
   },
   {
     "id": 76,
