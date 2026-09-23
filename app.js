@@ -422,6 +422,29 @@ function autoAnnotateMath(text) {
     return `___MATH_BLOCK_${idx}___`;
   });
 
+  // 1.5. Markdown テーブルを HTML table に変換し、退避して保護
+  const tableBlocks = [];
+  str = str.replace(/(?:^|\n)(\|.+?\|\n\|[-:| ]+?\|\n(?:\|.+?\|(?:\n|$))+)/g, (match, tableBlock) => {
+    const lines = tableBlock.trim().split('\n');
+    if (lines.length < 3) return match;
+    const parseRow = row => row.split('|').slice(1, -1).map(c => c.trim());
+    const headers = parseRow(lines[0]);
+    const aligns = parseRow(lines[1]).map(c => {
+      if (c.startsWith(':') && c.endsWith(':')) return 'center';
+      if (c.endsWith(':')) return 'right';
+      return 'left';
+    });
+    const headerHtml = '<tr>' + headers.map((h, i) => `<th style="text-align:${aligns[i] || 'left'}">${h}</th>`).join('') + '</tr>';
+    const bodyRows = lines.slice(2).map(line => {
+      const cells = parseRow(line);
+      return '<tr>' + cells.map((c, i) => `<td style="text-align:${aligns[i] || 'left'}">${c}</td>`).join('') + '</tr>';
+    }).join('');
+    const tableHtml = `<div class="quiz-table-wrapper"><table class="quiz-data-table"><thead>${headerHtml}</thead><tbody>${bodyRows}</tbody></table></div>`;
+    const tIdx = tableBlocks.length;
+    tableBlocks.push(tableHtml);
+    return `\n___TABLE_BLOCK_${tIdx}___\n`;
+  });
+
   // 2. 小問マーカーの改行フォーマット (1), (2)... や ①, ②...
   // (1)〜(10) の前で改行（直前が英字 f(1) などの関数呼び出しではない場合）
   str = str.replace(/([^\n])(\([0-9]{1,2}\))/g, (match, p1, p2) => {
@@ -456,7 +479,12 @@ function autoAnnotateMath(text) {
   // 4. 改行を <br> に変換
   str = str.replace(/\n/g, '<br>');
 
-  // 5. 退避した数式ブロックを復元（ブロック内の改行が <br> で壊れないよう保護）
+  // 5. 退避したテーブルブロックを復元
+  str = str.replace(/___TABLE_BLOCK_(\d+)___/g, (match, idx) => {
+    return tableBlocks[parseInt(idx, 10)];
+  });
+
+  // 6. 退避した数式ブロックを復元（ブロック内の改行が <br> で壊れないよう保護）
   str = str.replace(/___MATH_BLOCK_(\d+)___/g, (match, idx) => {
     return mathBlocks[parseInt(idx, 10)];
   });

@@ -1198,5 +1198,60 @@ kbd {
     width: auto;
     object-fit: contain;
   }
+
+  .quiz-data-table {
+    font-size: 0.86rem;
+  }
+  .quiz-data-table th,
+  .quiz-data-table td {
+    padding: 0.4rem 0.6rem;
+  }
 }
+
+/* Quiz Data Tables */
+.quiz-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0.8rem 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-card);
+}
+
+.quiz-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.quiz-data-table th,
+.quiz-data-table td {
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.quiz-data-table th:last-child,
+.quiz-data-table td:last-child {
+  border-right: none;
+}
+
+.quiz-data-table th {
+  background: var(--bg-subtle);
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.quiz-data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.quiz-data-table tbody tr:hover {
+  background: var(--accent-light);
+}
+
 
