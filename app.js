@@ -414,36 +414,56 @@ function autoAnnotateMath(text) {
   if (!text) return '';
   let str = text;
 
-  // 小問マーカーの改行フォーマット (1), (2)... や ①, ②...
-  // 1. (1)〜(10) の前で改行（直前が英字 f(1) などの関数呼び出しではない場合）
+  // 1. 既存の数式ブロック ($$...$$ および $...$) を退避して保護
+  const mathBlocks = [];
+  str = str.replace(/(\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g, (match) => {
+    const idx = mathBlocks.length;
+    mathBlocks.push(match);
+    return `___MATH_BLOCK_${idx}___`;
+  });
+
+  // 2. 小問マーカーの改行フォーマット (1), (2)... や ①, ②...
+  // (1)〜(10) の前で改行（直前が英字 f(1) などの関数呼び出しではない場合）
   str = str.replace(/([^\n])(\([0-9]{1,2}\))/g, (match, p1, p2) => {
     if (/[a-zA-Z]/.test(p1)) return match;
     return p1 + '\n' + p2;
   });
 
-  // 2. ①〜⑩ の前で改行
+  // ①〜⑩ の前で改行
   str = str.replace(/([^\n])([①-⑩])/g, '$1\n$2');
 
-  // 3. 句点・コロン・空白に続く (ア)〜(オ) や (a)〜(e) の前で改行
+  // 句点・コロン・空白に続く (ア)〜(オ) や (a)〜(e) の前で改行
   str = str.replace(/([。：\s])(\([ア-ンa-e]\))/g, '$1\n$2');
 
-  // Σ
+  // 3. 行列・ベクトルの自動数式化（平文中の [[a,b],[c,d]] や [x,y]^T など）
+  str = str.replace(/\[\[([^,\]]+),\s*([^,\]]+)\],\s*\[([^,\]]+),\s*([^,\]]+)\]\]/g, 
+    '$\\begin{pmatrix} $1 & $2 \\\\ $3 & $4 \\end{pmatrix}$');
+
+  // 3次元・2次元転置ベクトル [x, y, z]^T, [x, y]^T
+  str = str.replace(/\[([^,\]]+),\s*([^,\]]+),\s*([^,\]]+)\]\^T/g,
+    '$\\begin{pmatrix} $1 \\\\ $2 \\\\ $3 \\end{pmatrix}$');
+  str = str.replace(/\[([^,\]]+),\s*([^,\]]+)\]\^T/g,
+    '$\\begin{pmatrix} $1 \\\\ $2 \\end{pmatrix}$');
+
+  // Σ, lim, ∫
   str = str.replace(/Σ_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\sum_{$1}^{$2}$');
   str = str.replace(/Σ_\{([^}]+)\}/g, '$\\sum_{$1}$');
   str = str.replace(/Σ/g, '$\\Sigma$');
-
-  // lim
   str = str.replace(/lim_\{([^}]+)\}/g, '$\\lim_{$1}$');
-
-  // ∫
   str = str.replace(/∫_\{([^}]+)\}\^\{([^}]+)\}/g, '$\\int_{$1}^{$2}$');
   str = str.replace(/∫/g, '$\\int$');
 
-  // 改行を <br> に変換
+  // 4. 改行を <br> に変換
   str = str.replace(/\n/g, '<br>');
+
+  // 5. 退避した数式ブロックを復元（ブロック内の改行が <br> で壊れないよう保護）
+  str = str.replace(/___MATH_BLOCK_(\d+)___/g, (match, idx) => {
+    return mathBlocks[parseInt(idx, 10)];
+  });
 
   return str;
 }
+
 
 // Shuffle with Linked Groups Preservation
 // Ensures continuous/multi-part questions always appear consecutively in correct order

@@ -1125,3 +1125,95 @@ kbd {
 .lightbox-close:hover {
   background: rgba(255, 255, 255, 0.4);
 }
+
+/* --- KaTeX & Matrix Responsive Optimization (Mobile First) --- */
+.katex-display {
+  display: block !important;
+  margin: 0.85rem 0 !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 0.4rem 0.25rem !important;
+  scrollbar-width: thin;
+}
+
+.katex-display > .katex {
+  max-width: 100% !important;
+  text-align: center;
+  white-space: nowrap !important;
+}
+
+.katex {
+  white-space: nowrap !important;
+  text-indent: 0 !important;
+  font-size: 1.05em;
+}
+
+.katex-html {
+  white-space: nowrap !important;
+}
+
+/* Matrix & Vector Spacing */
+.katex .matrix {
+  margin: 0 0.15em !important;
+}
+
+/* KaTeX Horizontal Scrollbar Style */
+.katex-display::-webkit-scrollbar {
+  height: 5px;
+}
+.katex-display::-webkit-scrollbar-track {
+  background: var(--bg-subtle);
+  border-radius: 4px;
+}
+.katex-display::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 4px;
+  opacity: 0.6;
+}
+
+/* Mobile Screens (Under 640px) */
+@media (max-width: 640px) {
+  .question-body {
+    padding: 1rem 0.9rem;
+    font-size: 0.98rem;
+    line-height: 1.75;
+  }
+
+  .answer-body {
+    padding: 0.2rem 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  /* Compact math formulas to prevent overflow where possible */
+  .katex {
+    font-size: 0.92em !important;
+  }
+
+  .katex-display {
+    font-size: 0.94em !important;
+    margin: 0.6rem 0 !important;
+    padding: 0.35rem 0.1rem !important;
+  }
+
+  /* Make vectors and matrices fit better horizontally on phones */
+  .katex .arraycolsep {
+    width: 0.25em !important;
+  }
+
+  .katex .delimsizing.size1,
+  .katex .delimsizing.size2,
+  .katex .delimsizing.size3,
+  .katex .delimsizing.size4 {
+    vertical-align: middle;
+  }
+
+  .quiz-figure-img {
+    max-height: 300px;
+    width: 100%;
+    object-fit: contain;
+  }
+}
+

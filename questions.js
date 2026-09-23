@@ -288,16 +288,20 @@ var QUESTIONS_DATA = [
     "number": "演習 3.4",
     "chapter": 3,
     "chapterName": "第3章：行列とベクトル・ネットワーク分析",
-    "question": "次の行列・ベクトルの計算をせよ。\n(1) [1, 2]^T + [2, -1, 1]^T 2*[2, 1, 5]^T - 3*[1, 2, 3]^T [2, 3]*[2, -1]^T [1, -1, 1]*[1, 2, 1]^T [[2, 1], [3, 2]] * [2, 5]^T [[1, 3, 1], [2, 1, 2], [1, 1, 3]] * [1, 2, 3]^T [[2, 1], [1, 3]] * [[3, 1], [2, 5]]\n(8) [[1, 0, 1], [2, 1, 1], [1, 1, 0]] * [[1, 2, 2], [2, 1, 3], [3, 2, 1]]\n(9) [[2, 1], [1, 1]]^3\n(10) [[1, 1, 1], [2, 1, 1], [1, 2, 3]]^2",
-    "answer": "(1) 型が異なり計算不可\n(2) [1, -4, 1]^T 1\n(4) 0\n(5) [9, 16]^T [10, 10, 12]^T [[8, 7], [9, 16]]\n(8) [[4, 4, 3], [7, 7, 8], [3, 3, 5]]\n(9) [[13, 8], [8, 5]]\n(10) [[4, 4, 5], [5, 5, 6], [8, 9, 12]]"
+    "question": "次の行列・ベクトルの計算をしてみよう。\n\n(1) $\\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix} + \\begin{pmatrix} 2 \\\\ -1 \\\\ 1 \\end{pmatrix}$\n(2) $2\\begin{pmatrix} 2 \\\\ 1 \\\\ 5 \\end{pmatrix} - 3\\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix}$\n(3) $\\begin{pmatrix} 2 & 3 \\end{pmatrix}\\begin{pmatrix} 2 \\\\ -1 \\end{pmatrix}$\n(4) $\\begin{pmatrix} 1 & -1 & 1 \\end{pmatrix}\\begin{pmatrix} 1 \\\\ 2 \\\\ 1 \\end{pmatrix}$\n(5) $\\begin{pmatrix} 2 & 1 \\\\ 3 & 2 \\end{pmatrix}\\begin{pmatrix} 2 \\\\ 5 \\end{pmatrix}$\n(6) $\\begin{pmatrix} 1 & 3 & 1 \\\\ 2 & 1 & 2 \\\\ 1 & 1 & 3 \\end{pmatrix}\\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix}$\n(7) $\\begin{pmatrix} 2 & 1 \\\\ 1 & 3 \\end{pmatrix}\\begin{pmatrix} 3 & 1 \\\\ 2 & 5 \\end{pmatrix}$\n(8) $\\begin{pmatrix} 1 & 0 & 1 \\\\ 2 & 1 & 1 \\\\ 1 & 1 & 0 \\end{pmatrix}\\begin{pmatrix} 1 & 2 & 2 \\\\ 2 & 1 & 3 \\\\ 3 & 2 & 1 \\end{pmatrix}$\n(9) $\\begin{pmatrix} 2 & 1 \\\\ 1 & 1 \\end{pmatrix}^3$\n(10) $\\begin{pmatrix} 1 & 1 & 1 \\\\ 2 & 1 & 1 \\\\ 1 & 2 & 3 \\end{pmatrix}^2$",
+    "answer": "(1) $\\begin{pmatrix} 3 \\\\ 1 \\\\ 4 \\end{pmatrix}$\n(2) $\\begin{pmatrix} 1 \\\\ -4 \\\\ 1 \\end{pmatrix}$\n(3) $1$\n(4) $0$\n(5) $\\begin{pmatrix} 9 \\\\ 16 \\end{pmatrix}$\n(6) $\\begin{pmatrix} 10 \\\\ 10 \\end{pmatrix}$\n(7) $\\begin{pmatrix} 8 & 7 \\\\ 9 & 16 \\end{pmatrix}$\n(8) $\\begin{pmatrix} 4 & 4 & 3 \\\\ 7 & 7 & 8 \\\\ 3 & 3 & 5 \\end{pmatrix}$\n(9) $\\begin{pmatrix} 13 & 8 \\\\ 8 & 5 \\end{pmatrix}$\n(10) $\\begin{pmatrix} 4 & 4 & 5 \\\\ 5 & 5 & 6 \\\\ 8 & 9 & 12 \\end{pmatrix}$",
+    "imageUrl": "images/math_3_4.svg",
+    "answerImageUrl": "images/math_3_4_ans.svg"
   },
   {
     "id": 33,
     "number": "演習 3.5",
     "chapter": 3,
     "chapterName": "第3章：行列とベクトル・ネットワーク分析",
-    "question": "行列の積の形と連立1次方程式の形を相互に書き直せ。\n(1) [[5, 2, 1], [1, 1, 2], [2, 0, 1]] * [x, y, z]^T = [5, 1, 1]^T 2x+3y+z=0, -x+7y-3z=0, 3x+2y+2z=1",
-    "answer": "(1) 5x+2y+z=5, x+y+2z=1, 2x+z=1\n(2) [[2, 3, 1], [-1, 7, -3], [3, 2, 2]] * [x, y, z]^T = [0, 0, 1]^T"
+    "question": "次の式について、行列の積で書かれているものは連立1次方程式の形に、連立1次方程式の形で書かれているものは行列の積の形にそれぞれ書き直してみよう。\n\n(1) $\\begin{pmatrix} 5 & 2 & 1 \\\\ 1 & 1 & 2 \\\\ 2 & 0 & 1 \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\begin{pmatrix} 5 \\\\ 1 \\\\ 1 \\end{pmatrix}$\n\n(2) $\\begin{cases} 2x + 3y + z = 0 \\\\ -x + 7y - 3z = 0 \\\\ 3x + 2y + 2z = 1 \\end{cases}$",
+    "answer": "(1) 連立1次方程式:\n$$\\begin{cases} 5x + 2y + z = 5 \\\\ x + y + 2z = 1 \\\\ 2x + z = 1 \\end{cases}$$\n\n(2) 行列の積:\n$$\\begin{pmatrix} 2 & 3 & 1 \\\\ -1 & 7 & -3 \\\\ 3 & 2 & 2 \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\begin{pmatrix} 0 \\\\ 0 \\\\ 1 \\end{pmatrix}$$",
+    "imageUrl": "images/math_3_5.svg",
+    "answerImageUrl": "images/math_3_5_ans.svg"
   },
   {
     "id": 34,
@@ -657,17 +661,18 @@ var QUESTIONS_DATA = [
     "number": "演習 6.6",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "アーケード街の店舗営業・空き店舗の推移行列 P = [[0.85, 0.70], [0.15, 0.30]]。\n(1)固有値1の固有ベクトル [14, 3]^T の確認。\n(2)(3)営業100、空き70の長期推移。",
-    "answer": "[100, 70]^T = 10*[14, 3]^T + 40*[-1, 1]^T。長期的に営業中の店舗数 140、空き店舗数 30 に近づく。",
-    "imageUrl": "images/fig_6_6.png"
+    "question": "X町のアーケード街の繁盛状況を調べるため、170ある店舗スペースへの入居状況を数年間にわたって調べたところ、営業中の店舗数と空き店舗数について、年ごとの推移が図の表のように得られた。\n\n(1) 営業中の店舗数と空き店舗数をベクトル $\\begin{pmatrix} \\text{営業中の店舗数} \\\\ \\text{空き店舗数} \\end{pmatrix}$ で表すとき、営業中の店舗数と空き店舗数の推移を表す推移行列 $P$ を求めよう。\n(2) $\\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix}$ が $P$ の固有値 1 の固有ベクトル、$\\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$ が $P$ の固有値 0.15 の固有ベクトルであることを確かめてみよう。\n(3) ある年の営業中の店舗数が 100、空き店舗数が 70 であるとき、このアーケード街の営業中の店舗数と空き店舗数は、長い年数が経った後、どのようになると予想されるか、固有値、固有ベクトルを使って説明してみよう。",
+    "answer": "(1) 推移行列 $P$:\n$$P = \\begin{pmatrix} 0.85 & 0.70 \\\\ 0.15 & 0.30 \\end{pmatrix}$$\n\n(2) 固有値・固有ベクトルの確認:\n$$P \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = \\begin{pmatrix} 0.85 \\times 14 + 0.70 \\times 3 \\\\ 0.15 \\times 14 + 0.30 \\times 3 \\end{pmatrix} = \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = 1 \\cdot \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix}$$\n$$P \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix} = \\begin{pmatrix} 0.85 \\times (-1) + 0.70 \\times 1 \\\\ 0.15 \\times (-1) + 0.30 \\times 1 \\end{pmatrix} = \\begin{pmatrix} -0.15 \\\\ 0.15 \\end{pmatrix} = 0.15 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nより、それぞれ固有値 1, 0.15 の固有ベクトルであることが確かめられる。\n\n(3) 長期的な推移:\n初年のベクトルは\n$$\\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} = 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} + 40 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nと表せるから、$n$ 年後は\n$$P^n \\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix} = 10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} + 0.15^n \\cdot 40 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\n$n$ を大きくすると $0.15^n \\to 0$ となるので、$P^n \\begin{pmatrix} 100 \\\\ 70 \\end{pmatrix}$ は $10 \\begin{pmatrix} 14 \\\\ 3 \\end{pmatrix} = \\begin{pmatrix} 140 \\\\ 30 \\end{pmatrix}$ に近づく。\nよって、営業中の店舗数と空き店舗数は、それぞれ 140 と 30 に近づいていく。",
+    "imageUrl": "images/fig_6_6.png",
+    "answerImageUrl": "images/ans_fig_6_6.png"
   },
   {
     "id": 75,
     "number": "演習 6.7",
     "chapter": 6,
     "chapterName": "第6章：マルコフ推移行列・固有値・主成分分析",
-    "question": "生活目標（現在中心・未来中心）の推移行列 P = [[0.865, 0.365], [0.135, 0.635]]。\n(1)(2)固有値1の固有ベクトル [73, 27]^T。\n(3)将来予測。",
-    "answer": "2003年 [65, 35]^T = [73, 27]^T + 8*[-1, 1]^T。長期的には現在中心 73%、未来中心 27% に近づく。",
+    "question": "ある調査によると、生活目標（日々の生活で何を重視しているか）が「現在中心」（現在の生活の快適さを重視）の人と「未来中心」（将来の豊かさを重視）の人の割合の5年ごとの変化が図の表のように報告されている。\n\n(1) 調査した年における現在中心と未来中心の人の割合をベクトル $\\begin{pmatrix} \\text{現在中心} \\\\ \\text{未来中心} \\end{pmatrix}$ で表すとき、5年ごとの変化を表す推移行列 $P$ が $P = \\begin{pmatrix} 0.865 & 0.365 \\\\ 0.135 & 0.635 \\end{pmatrix}$ で与えられることを確かめてみよう。\n(2) $\\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}$ が $P$ の固有値 1 の固有ベクトル、$\\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$ が $P$ の固有値 0.5 の固有ベクトルであることを確かめてみよう。\n(3) 今後の変化も上の推移行列 $P$ にしたがうとすると、将来的に現在中心と未来中心の人の割合はどのようになると予想されるか、固有値、固有ベクトルを使って説明してみよう。",
+    "answer": "(1) 略（表の値から比率を計算し推移行列が一致することを確かめる）\n\n(2) 固有値・固有ベクトルの確認:\n$$P \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} = 1 \\cdot \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}, \\quad P \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix} = 0.5 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nより一致する。\n\n(3) 将来予測:\n2003年のベクトルは\n$$\\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} = \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} + 8 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\nと表せるから、2003年の $5n$ 年後は\n$$P^n \\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix} = \\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix} + 0.5^n \\cdot 8 \\begin{pmatrix} -1 \\\\ 1 \\end{pmatrix}$$\n$n$ を大きくすると $0.5^n \\to 0$ に近づくので、$P^n \\begin{pmatrix} 65 \\\\ 35 \\end{pmatrix}$ は $\\begin{pmatrix} 73 \\\\ 27 \\end{pmatrix}$ に近づく。\nよって、現在中心の人と未来中心の人の割合は、それぞれ 73%、27% に近づく。",
     "imageUrl": "images/fig_6_7.png"
   },
   {
